@@ -135,7 +135,65 @@ mangas/figuras/merchs (1) ─< (N) imagenes (polimórfica)
 
 ## 👥 Asignación de Tareas por Compañero
 
-### 🔵 LORENZO - Seeders y Datos de Categorías
+### ⚫ Marco - Panel de Administración + Carrito y Gestión de Stock
+
+**Archivos a crear/modificar:**
+- `app/Http/Controllers/AdminController.php`
+- `app/Http/Controllers/CarritoController.php`
+- `resources/views/admin/` - Vistas del panel
+- `resources/views/carrito/` - Vistas del carrito
+- `routes/admin.php` - Rutas protegidas del admin
+- `app/Models/Carrito.php` (si es necesario)
+
+**Tareas:**
+
+1. **Sistema de Autenticación Admin:**
+   - Verificar roles de usuario (admin vs cliente)
+   - Middleware para proteger rutas de admin
+
+2. **Panel de Administración:**
+   - Dashboard con estadísticas (productos totales, stock bajo, etc.)
+   - Gestión de productos (CRUD)
+   - Gestión de categorías (CRUD)
+   - Gestión de variantes de merch
+   - Ver pedidos (estructura lista)
+
+3. **Gestión de Stock:**
+   - Vista de productos con stock bajo (< 5 unidades)
+   - Actualizar stock de productos
+   - Alertas de stock agotado
+   - Restar stock automáticamente al comprar
+
+4. **Sistema de Carrito:**
+   - Almacenar carrito en sesión/base de datos
+   - Añadir productos al carrito
+   - Eliminar productos del carrito
+   - Actualizar cantidades
+   - Calcular totales (subtotal, impuestos, total)
+   - Vista del carrito
+   - Validar stock disponible antes de añadir
+
+**Rutas Admin (ejemplos):**
+```php
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::resource('productos', AdminProductoController::class);
+    Route::resource('categorias', AdminCategoriaController::class);
+    Route::get('/stock-bajo', [AdminController::class, 'stockBajo'])->name('admin.stock-bajo');
+});
+```
+
+**Rutas Carrito:**
+```php
+Route::post('/carrito/agregar/{id}', [CarritoController::class, 'agregar'])->name('carrito.agregar');
+Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
+Route::patch('/carrito/actualizar/{id}', [CarritoController::class, 'actualizar'])->name('carrito.actualizar');
+Route::get('/carrito', [CarritoController::class, 'ver'])->name('carrito.ver');
+```
+
+---
+
+### 🔵 LORENZO - TODOS LOS SEEDERS (Base de Datos)
 
 **Archivos a crear/modificar:**
 - `database/seeders/CategoriaMangaSeeder.php`
@@ -143,127 +201,124 @@ mangas/figuras/merchs (1) ─< (N) imagenes (polimórfica)
 - `database/seeders/CategoriaMerchSeeder.php`
 - `database/seeders/TallaSeeder.php`
 - `database/seeders/ColorSeeder.php`
+- `database/seeders/MangaSeeder.php`
+- `database/seeders/FiguraSeeder.php`
+- `database/seeders/MerchSeeder.php`
+- `database/seeders/MerchVarianteSeeder.php`
 
 **Tareas:**
-1. Crear seeder para **categorías de manga** con estos géneros:
+
+1. **Categorías de Manga** (10 géneros):
    - Acción, Romance, Terror, Fantasía, Comedia, Aventura, Drama, Ciencia Ficción, Misterio, Deportes
 
-2. Crear seeder para **categorías de figuras** con estas series:
+2. **Categorías de Figuras** (7 series):
    - One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia, Attack on Titan, Jujutsu Kaisen
 
-3. Crear seeder para **categorías de merch**:
+3. **Categorías de Merch** (6 tipos):
    - Camisetas, Sudaderas, Tazas, Posters, Llaveros, Mochilas
 
-4. Crear seeder para **tallas**:
+4. **Tallas** (6):
    - XS, S, M, L, XL, XXL
 
-5. Crear seeder para **colores**:
+5. **Colores** (10):
    - Negro (#000000), Blanco (#FFFFFF), Gris (#808080), Rojo (#FF0000), Azul (#0000FF), Verde (#008000), Amarillo (#FFFF00), Rosa (#FFC0CB), Naranja (#FFA500), Morado (#800080)
 
-**Ejemplo de seeder:**
+6. **Mangas** (mínimo 15 con todos los campos: nombre, descripcion, precio, stock, autor, editorial, fecha_publicacion, numero_paginas, isbn, numero_tomo):
+   - One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia, Attack on Titan, Death Note, Fullmetal Alchemist, Spy x Family, Chainsaw Man, Jujutsu Kaisen, Sailor Moon, Fruits Basket, Junji Ito Collection, etc.
+
+7. **Figuras** (mínimo 10 con: nombre, descripcion, precio, stock):
+   - Figuras de personajes principales de las series
+
+8. **Merch** (mínimo 10 productos: camisetas, sudaderas, tazas, posters, etc.)
+
+9. **Variantes de Merch** (combinaciones de talla/color/stock para cada merch)
+
+**Modificar `DatabaseSeeder.php` para ejecutar todos los seeders en orden:**
 ```php
-<?php
-namespace Database\Seeders;
-
-use App\Models\CategoriaManga;
-use Illuminate\Database\Seeder;
-
-class CategoriaMangaSeeder extends Seeder
+public function run(): void
 {
-    public function run(): void
-    {
-        $categorias = [
-            ['nombre' => 'Acción', 'descripcion' => 'Manga lleno de peleas y emoción'],
-            ['nombre' => 'Romance', 'descripcion' => 'Historias de amor y relaciones'],
-            // ... añadir más
-        ];
-
-        foreach ($categorias as $categoria) {
-            CategoriaManga::create($categoria);
-        }
-    }
+    $this->call([
+        CategoriaMangaSeeder::class,
+        CategoriaFiguraSeeder::class,
+        CategoriaMerchSeeder::class,
+        TallaSeeder::class,
+        ColorSeeder::class,
+        MangaSeeder::class,
+        FiguraSeeder::class,
+        MerchSeeder::class,
+        MerchVarianteSeeder::class,
+    ]);
 }
 ```
 
 ---
 
-### 🟢 MARIO - Seeders de Productos (Mangas y Figuras)
+### 🟢 MARIO - Controladores y Rutas
 
 **Archivos a crear/modificar:**
-- `database/seeders/MangaSeeder.php`
-- `database/seeders/FiguraSeeder.php`
+- `app/Http/Controllers/ProductoController.php`
+- `app/Http/Controllers/CategoriaController.php`
+- `routes/web.php`
 
 **Tareas:**
-1. Crear seeder con **mínimo 15 mangas** de prueba con todos los campos:
-   - nombre, descripcion, precio, stock, disponibilidad, autor, editorial, fecha_publicacion, numero_paginas, isbn, numero_tomo, categoria_manga_id
+1. Crear controlador **ProductoController** con métodos:
+   - `index()` - Listar todos los productos
+   - `show($id)` - Mostrar detalle de un producto
+   - `porCategoria($id)` - Filtrar productos por categoría
 
-2. Crear seeder con **mínimo 10 figuras** de prueba:
-   - nombre, descripcion, precio, stock, disponibilidad, categoria_figura_id
+2. Crear controlador **CategoriaController** con métodos:
+   - `index()` - Listar todas las categorías
 
-**Ejemplo de manga:**
+3. Definir rutas en `routes/web.php`:
+   - `GET /` → Página principal con todos los productos
+   - `GET /productos` → Listado de productos
+   - `GET /productos/{id}` → Detalle del producto
+   - `GET /categorias/{id}/productos` → Productos por categoría
+   - `GET /categorias` → Listado de categorías
+
+**Ejemplo de ruta:**
 ```php
-[
-    'nombre' => 'One Piece Vol. 1',
-    'descripcion' => 'El comienzo de la aventura de Monkey D. Luffy...',
-    'precio' => 8.95,
-    'stock' => 50,
-    'disponibilidad' => true,
-    'autor' => 'Eiichiro Oda',
-    'editorial' => 'Planeta Cómic',
-    'fecha_publicacion' => '1997-07-22',
-    'numero_paginas' => 200,
-    'isbn' => '978-84-XXXXX-XX-X',
-    'numero_tomo' => 1,
-    'categoria_manga_id' => 1 // Acción
-]
+Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
+Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
+Route::get('/categorias/{id}/productos', [ProductoController::class, 'porCategoria'])->name('productos.categoria');
 ```
-
-**Recomendación de mangas a incluir:**
-- One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia
-- Attack on Titan, Death Note, Fullmetal Alchemist
-- Spy x Family, Chainsaw Man, Jujutsu Kaisen
-- Sailor Moon, Fruits Basket (romance)
-- Junji Ito Collection (terror)
 
 ---
 
-### 🟣 LUIS - Seeders de Merch y Sistema de Imágenes
+### 🟣 LUIS - Vistas y Sistema de Filtros
 
 **Archivos a crear/modificar:**
-- `database/seeders/MerchSeeder.php`
-- `database/seeders/MerchVarianteSeeder.php`
-- `database/seeders/ImagenSeeder.php` (opcional)
+- `resources/views/productos/index.blade.php` - Listado de productos
+- `resources/views/productos/show.blade.php` - Detalle del producto
+- `resources/views/partials/filtros.blade.php` - Panel de filtros
+- `resources/views/partials/card-producto.blade.php` - Tarjeta reutilizable
+- `resources/css/custom.css` - Estilos personalizados
 
 **Tareas:**
-1. Crear seeder con **mínimo 10 productos merch**:
-   - Camisetas, sudaderas, tazas, posters, etc.
+1. Crear vista **index.blade.php** con:
+   - Grid de productos con tarjetas
+   - Barra de filtros (por categoría, precio, disponibilidad)
+   - Búsqueda por nombre
 
-2. Crear seeder para **variantes de merch** (combinaciones talla/color/stock):
-   - Cada camiseta debe tener variantes con diferentes tallas y colores
+2. Crear vista **show.blade.php** con:
+   - Imagen principal y galería
+   - Nombre, descripción, precio
+   - Stock y disponibilidad
+   - Botón "Añadir al carrito" (solo estructura HTML)
 
-3. Buscar y descargar **imágenes de ejemplo** para los productos:
-   - Guardarlas en `storage/app/public/productos/`
-   - Crear el enlace simbólico: `php artisan storage:link`
+3. Crear componente **card-producto.blade.php**:
+   - Tarjeta reutilizable con imagen, nombre, precio
+   - Botón de detalles
 
-**Ejemplo de merch con variantes:**
-```php
-// Crear el merch
-$camiseta = Merch::create([
-    'nombre' => 'Camiseta Naruto Uzumaki',
-    'descripcion' => 'Camiseta 100% algodón con diseño de Naruto',
-    'precio' => 24.95,
-    'disponibilidad' => true,
-    'categoria_merch_id' => 1 // Camisetas
-]);
+4. Crear panel de **filtros.blade.php**:
+   - Filtro por categoría (checkboxes)
+   - Filtro por rango de precio (slider)
+   - Botón "Filtrar"
 
-// Crear variantes (talla M, color Negro, stock 20)
-MerchVariante::create([
-    'merch_id' => $camiseta->id,
-    'talla_id' => 3, // M
-    'color_id' => 1, // Negro
-    'stock' => 20
-]);
-```
+5. Añadir estilos CSS personalizados para:
+   - Grid responsivo
+   - Cards atractivas
+   - Filtros funcionales
 
 ---
 
@@ -275,21 +330,24 @@ MerchVariante::create([
 - [x] Crear modelos Eloquent con relaciones
 - [x] Crear layout principal con Bootstrap
 - [x] Crear header y footer
-- [ ] **PENDIENTE:** Seeders de datos (Lorenzo, Mario, Luis)
-- [ ] Crear vistas de catálogo
-- [ ] Crear sistema de filtros por categoría
+- [ ] **PENDIENTE (Lorenzo):** Seeders de datos
+- [ ] **PENDIENTE (Mario):** Controladores y rutas básicas
+- [ ] **PENDIENTE (Luis):** Vistas y sistema de filtros
+- [ ] **PENDIENTE (Tú):** Panel de administración
+- [ ] **PENDIENTE (Tú):** Sistema de carrito
+- [ ] **PENDIENTE (Tú):** Gestión de stock
 
 ### Nivel Intermedio (Próximo)
-- [ ] Sistema de autenticación de usuarios
-- [ ] Carrito de compras con sesiones
-- [ ] Añadir/eliminar productos del carrito
-- [ ] Cálculo de totales
+- [ ] Autenticación completa de usuarios
+- [ ] Formulario de checkout
+- [ ] Sistema de pedidos
+- [ ] Validaciones avanzadas
 - [ ] Gestión de imágenes con Storage
 
 ### Nivel Experto (Futuro)
-- [ ] Sistema de pedidos
-- [ ] Formulario de pago
-- [ ] Panel de administración
+- [ ] Formulario de pago (integración Stripe/PayPal)
+- [ ] Panel de usuarios con historial de compras
+- [ ] Sistema de reseñas y calificaciones
 - [ ] Relaciones avanzadas Eloquent
 
 ---
@@ -325,10 +383,10 @@ php artisan serve
 
 ## 📞 Contacto del Equipo
 
-- **Coordinador:** [Tu nombre]
-- **Lorenzo:** Seeders de categorías
-- **Mario:** Seeders de productos
-- **Luis:** Seeders de merch e imágenes
+- **Coordinador / Panel Admin / Carrito:** Tú (Marco)
+- **Lorenzo:** Seeders de Base de Datos
+- **Mario:** Controladores y Rutas
+- **Luis:** Vistas y Filtros
 
 ---
 

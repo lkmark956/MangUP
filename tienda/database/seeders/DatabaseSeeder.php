@@ -18,6 +18,11 @@ class DatabaseSeeder extends Seeder
         CategoriaMerchSeeder::class,
         TallaSeeder::class,
         ColorSeeder::class,
+        MangaSeeder::class,
+        FiguraSeeder::class,
+        MerchSeeder::class,
+        MerchVarianteSeeder::class,
+        ImagenSeeder::class,
     ]);
 }
 

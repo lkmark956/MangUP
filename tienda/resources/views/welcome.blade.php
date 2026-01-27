@@ -85,7 +85,7 @@
 
     <!-- Banner promocional -->
     <section class="container mb-5">
-        <div class="card border-0 text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card border-0 text-white" style="background: linear-gradient(135deg, #E76F00 0%, #FFB800 100%);">
             <div class="card-body text-center py-5">
                 <h3><i class="bi bi-truck me-2"></i>Envío gratis en pedidos superiores a 50€</h3>
                 <p class="mb-0">Entrega en 24-48 horas en toda España</p>

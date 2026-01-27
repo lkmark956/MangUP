@@ -2,14 +2,14 @@
    MangUP - Estilos Personalizados
    ======================================== */
 
-/* Variables CSS */
+/* Variables CSS - Estilo FNAC */
 :root {
-    --mangup-primary: #FF6B6B;
-    --mangup-secondary: #4ECDC4;
-    --mangup-dark: #2C3E50;
-    --mangup-light: #F8F9FA;
+    --mangup-primary: #E76F00;
+    --mangup-secondary: #FFB800;
+    --mangup-dark: #333333;
+    --mangup-light: #F5F5F5;
     --mangup-success: #28a745;
-    --mangup-warning: #ffc107;
+    --mangup-warning: #E76F00;
     --mangup-danger: #dc3545;
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -17,6 +17,167 @@
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
     --border-radius: 12px;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--mangup-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ========================================
+   Header / Navbar
+   ======================================== */
+.navbar {
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-bottom: 3px solid var(--mangup-primary);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--mangup-primary) !important;
+}
+
+.navbar-brand span {
+    color: var(--mangup-dark);
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--mangup-dark) !important;
+    transition: color var(--transition-normal);
+}
+
+.nav-link:hover {
+    color: var(--mangup-primary) !important;
+}
+
+.btn-cart {
+    background-color: var(--mangup-primary);
+    color: white;
+    border: none;
+    position: relative;
+}
+
+.btn-cart:hover {
+    background-color: #c95f00;
+    color: white;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--mangup-secondary);
+    color: var(--mangup-dark);
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.footer {
+    background-color: var(--mangup-dark);
+    color: #e9ecef;
+    padding: 3rem 0 1rem;
+    margin-top: auto;
+}
+
+.footer h5 {
+    color: var(--mangup-primary);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.footer p,
+.footer .text-muted {
+    color: #ced4da !important;
+}
+
+.footer a {
+    color: #e9ecef;
+    text-decoration: none;
+    transition: color var(--transition-normal);
+}
+
+.footer a:hover {
+    color: var(--mangup-primary);
+}
+
+.footer-bottom {
+    border-top: 1px solid #555;
+    padding-top: 1rem;
+    margin-top: 2rem;
+}
+
+.footer-bottom p,
+.footer-bottom a {
+    color: #ced4da;
+}
+
+.social-links a {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: #e9ecef;
+}
+
+.social-links a:hover {
+    color: var(--mangup-primary);
+}
+
+/* ========================================
+   Hero Section
+   ======================================== */
+.hero {
+    background: linear-gradient(135deg, var(--mangup-primary) 0%, var(--mangup-secondary) 100%);
+    color: white;
+    padding: 5rem 0;
+    margin-bottom: 3rem;
+}
+
+.hero h1 {
+    font-weight: 700;
+    font-size: 3rem;
+}
+
+/* ========================================
+   Card Product (usado en welcome)
+   ======================================== */
+.card-product {
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-product:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-product .card-img-top {
+    height: 250px;
+    object-fit: cover;
+}
+
+.price {
+    color: var(--mangup-primary);
+    font-weight: 700;
+    font-size: 1.25rem;
 }
 
 /* ========================================
@@ -195,7 +356,7 @@
 }
 
 /* ========================================
-Panel de Filtros
+   Panel de Filtros
    ======================================== */
 .filters-panel {
     border: none;
@@ -384,7 +545,7 @@ Panel de Filtros
 }
 
 .search-container .form-control:focus {
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+    box-shadow: 0 0 0 3px rgba(231, 111, 0, 0.2);
     border-color: var(--mangup-primary);
 }
 
@@ -402,8 +563,8 @@ Panel de Filtros
 
 .btn-primary:hover,
 .btn-primary:focus {
-    background-color: #ff5252;
-    border-color: #ff5252;
+    background-color: #c95f00;
+    border-color: #c95f00;
 }
 
 .btn-outline-primary {
@@ -551,7 +712,7 @@ Panel de Filtros
 }
 
 .pagination .page-link:hover {
-    background-color: rgba(255, 107, 107, 0.1);
+    background-color: rgba(231, 111, 0, 0.1);
     color: var(--mangup-primary);
 }
 

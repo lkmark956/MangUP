@@ -1,226 +1,308 @@
-{{-- Panel de Filtros --}}
-<div class="filters-panel card shadow-sm">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-            <i class="bi bi-funnel me-2"></i>Filtros
+{{-- Panel de Filtros Mejorado --}}
+<div class="filters-panel">
+    <div class="filters-header">
+        <h5>
+            <i class="bi bi-funnel"></i>Filtros
         </h5>
-        <a href="{{ route('productos.index') }}" class="btn btn-sm btn-light" title="Limpiar filtros">
-            <i class="bi bi-x-lg"></i>
-        </a>
+        @if(request()->hasAny(['tipo', 'categorias', 'precio_min', 'precio_max', 'disponibilidad', 'solo_ofertas', 'orden']))
+            <a href="{{ route('productos.index') }}" class="filters-clear-btn" title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        @endif
     </div>
     
-    <div class="card-body">
-        <form action="{{ route('productos.index') }}" method="GET" id="filtrosForm">
-            {{-- Mantener búsqueda actual --}}
-            @if(request('buscar'))
-                <input type="hidden" name="buscar" value="{{ request('buscar') }}">
-            @endif
+    <form action="{{ route('productos.index') }}" method="GET" id="filtrosForm">
+        {{-- Mantener búsqueda actual --}}
+        @if(request('buscar'))
+            <input type="hidden" name="buscar" value="{{ request('buscar') }}">
+        @endif
 
-            {{-- Filtro por Categoría --}}
-            <div class="filter-section mb-4">
-                <h6 class="filter-title fw-bold mb-3">
-                    <i class="bi bi-tag me-2"></i>Categoría
-                </h6>
+        {{-- Filtros activos --}}
+        @if(request()->hasAny(['tipo', 'categorias', 'precio_min', 'precio_max', 'disponibilidad', 'solo_ofertas']))
+        <div class="active-filters">
+            <span class="active-filters-label">Filtros activos:</span>
+            <div class="active-filters-tags">
+                @foreach((array)request('tipo', []) as $tipo)
+                    <span class="filter-tag">
+                        {{ ucfirst($tipo) }}
+                        <a href="{{ request()->fullUrlWithQuery(['tipo' => array_diff((array)request('tipo'), [$tipo])]) }}">×</a>
+                    </span>
+                @endforeach
+                @if(request('precio_min') || request('precio_max'))
+                    <span class="filter-tag">
+                        {{ request('precio_min', 0) }}€ - {{ request('precio_max', '∞') }}€
+                        <a href="{{ request()->fullUrlWithQuery(['precio_min' => null, 'precio_max' => null]) }}">×</a>
+                    </span>
+                @endif
+                @foreach((array)request('disponibilidad', []) as $disp)
+                    <span class="filter-tag">
+                        {{ str_replace('_', ' ', ucfirst($disp)) }}
+                        <a href="{{ request()->fullUrlWithQuery(['disponibilidad' => array_diff((array)request('disponibilidad'), [$disp])]) }}">×</a>
+                    </span>
+                @endforeach
+                @if(request('solo_ofertas'))
+                    <span class="filter-tag">
+                        Solo ofertas
+                        <a href="{{ request()->fullUrlWithQuery(['solo_ofertas' => null]) }}">×</a>
+                    </span>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        {{-- Filtro por Tipo de Producto --}}
+        <div class="filter-section">
+            <h6 class="filter-title" data-bs-toggle="collapse" data-bs-target="#filtroTipo" aria-expanded="true">
+                <span><i class="bi bi-grid-3x3-gap"></i>Tipo de Producto</span>
+                <i class="bi bi-chevron-down filter-toggle-icon"></i>
+            </h6>
+            <div class="collapse show" id="filtroTipo">
                 <div class="filter-options">
-                    @if(isset($categorias) && $categorias->count() > 0)
-                        @foreach($categorias as $categoria)
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" 
-                                    type="checkbox" 
-                                    name="categorias[]" 
-                                    value="{{ $categoria->id }}" 
-                                    id="cat_{{ $categoria->id }}"
-                                    {{ in_array($categoria->id, request('categorias', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label d-flex justify-content-between" for="cat_{{ $categoria->id }}">
-                                    <span>{{ $categoria->nombre }}</span>
-                                    <span class="badge bg-light text-dark">{{ $categoria->productos_count ?? 0 }}</span>
-                                </label>
-                            </div>
-                        @endforeach
-                    @else
-                        {{-- Categorías de ejemplo si no hay datos --}}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="categorias[]" value="manga" id="cat_manga">
-                            <label class="form-check-label" for="cat_manga">Manga</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="categorias[]" value="figura" id="cat_figura">
-                            <label class="form-check-label" for="cat_figura">Figuras</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="categorias[]" value="merch" id="cat_merch">
-                            <label class="form-check-label" for="cat_merch">Merchandising</label>
-                        </div>
-                    @endif
+                    <label class="filter-checkbox {{ in_array('manga', (array)request('tipo', [])) ? 'active' : '' }}">
+                        <input type="checkbox" 
+                            name="tipo[]" 
+                            value="manga" 
+                            {{ in_array('manga', (array)request('tipo', [])) ? 'checked' : '' }}
+                            onchange="this.form.submit()">
+                        <span class="filter-checkbox-content">
+                            <span class="filter-checkbox-icon">
+                                <i class="bi bi-book"></i>
+                            </span>
+                            <span class="filter-checkbox-label">Mangas</span>
+                            <span class="filter-checkbox-count">{{ $mangasCount ?? 0 }}</span>
+                        </span>
+                    </label>
+                    <label class="filter-checkbox {{ in_array('figura', (array)request('tipo', [])) ? 'active' : '' }}">
+                        <input type="checkbox" 
+                            name="tipo[]" 
+                            value="figura" 
+                            {{ in_array('figura', (array)request('tipo', [])) ? 'checked' : '' }}
+                            onchange="this.form.submit()">
+                        <span class="filter-checkbox-content">
+                            <span class="filter-checkbox-icon">
+                                <i class="bi bi-person-standing"></i>
+                            </span>
+                            <span class="filter-checkbox-label">Figuras</span>
+                            <span class="filter-checkbox-count">{{ $figurasCount ?? 0 }}</span>
+                        </span>
+                    </label>
+                    <label class="filter-checkbox {{ in_array('merch', (array)request('tipo', [])) ? 'active' : '' }}">
+                        <input type="checkbox" 
+                            name="tipo[]" 
+                            value="merch" 
+                            {{ in_array('merch', (array)request('tipo', [])) ? 'checked' : '' }}
+                            onchange="this.form.submit()">
+                        <span class="filter-checkbox-content">
+                            <span class="filter-checkbox-icon">
+                                <i class="bi bi-bag"></i>
+                            </span>
+                            <span class="filter-checkbox-label">Merchandising</span>
+                            <span class="filter-checkbox-count">{{ $merchsCount ?? 0 }}</span>
+                        </span>
+                    </label>
                 </div>
             </div>
+        </div>
 
-            {{-- Filtro por Rango de Precio --}}
-            <div class="filter-section mb-4">
-                <h6 class="filter-title fw-bold mb-3">
-                    <i class="bi bi-currency-euro me-2"></i>Precio
-                </h6>
-                <div class="price-range-container">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="price-label" id="precioMinLabel">{{ request('precio_min', 0) }}€</span>
-                        <span class="price-label" id="precioMaxLabel">{{ request('precio_max', 500) }}€</span>
-                    </div>
-                    
-                    <div class="price-inputs d-flex gap-2 mb-3">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text">Min</span>
+        {{-- Filtro por Rango de Precio --}}
+        <div class="filter-section">
+            <h6 class="filter-title" data-bs-toggle="collapse" data-bs-target="#filtroPrecio" aria-expanded="true">
+                <span><i class="bi bi-currency-euro"></i>Precio</span>
+                <i class="bi bi-chevron-down filter-toggle-icon"></i>
+            </h6>
+            <div class="collapse show" id="filtroPrecio">
+                {{-- Botones rápidos de precio --}}
+                <div class="price-quick-btns">
+                    <button type="button" 
+                        class="price-quick-btn {{ request('precio_max') == 20 && !request('precio_min') ? 'active' : '' }}" 
+                        onclick="setPrecioRango(0, 20)">
+                        <span>0-20€</span>
+                    </button>
+                    <button type="button" 
+                        class="price-quick-btn {{ request('precio_min') == 20 && request('precio_max') == 50 ? 'active' : '' }}" 
+                        onclick="setPrecioRango(20, 50)">
+                        <span>20-50€</span>
+                    </button>
+                    <button type="button" 
+                        class="price-quick-btn {{ request('precio_min') == 50 && request('precio_max') == 100 ? 'active' : '' }}" 
+                        onclick="setPrecioRango(50, 100)">
+                        <span>50-100€</span>
+                    </button>
+                    <button type="button" 
+                        class="price-quick-btn {{ request('precio_min') == 100 && !request('precio_max') ? 'active' : '' }}" 
+                        onclick="setPrecioRango(100, '')">
+                        <span>+100€</span>
+                    </button>
+                </div>
+                
+                {{-- Inputs de precio personalizados --}}
+                <div class="price-inputs">
+                    <div class="price-input-group">
+                        <label>Mín</label>
+                        <div class="price-input-wrapper">
                             <input type="number" 
-                                class="form-control" 
                                 name="precio_min" 
                                 id="precioMin"
-                                value="{{ request('precio_min', 0) }}" 
+                                value="{{ request('precio_min') }}" 
                                 min="0" 
-                                max="1000"
                                 placeholder="0">
-                            <span class="input-group-text">€</span>
+                            <span class="price-currency">€</span>
                         </div>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text">Max</span>
+                    </div>
+                    <span class="price-separator">—</span>
+                    <div class="price-input-group">
+                        <label>Máx</label>
+                        <div class="price-input-wrapper">
                             <input type="number" 
-                                class="form-control" 
                                 name="precio_max" 
                                 id="precioMax"
-                                value="{{ request('precio_max', 500) }}" 
+                                value="{{ request('precio_max') }}" 
                                 min="0" 
-                                max="1000"
-                                placeholder="500">
-                            <span class="input-group-text">€</span>
+                                placeholder="∞">
+                            <span class="price-currency">€</span>
                         </div>
                     </div>
-
-                    {{-- Slider de precio --}}
-                    <div class="price-slider-container mb-2">
-                        <input type="range" 
-                            class="form-range price-slider" 
-                            id="priceRangeMin"
-                            min="0" 
-                            max="500" 
-                            value="{{ request('precio_min', 0) }}"
-                            oninput="actualizarPrecioMin(this.value)">
-                        <input type="range" 
-                            class="form-range price-slider" 
-                            id="priceRangeMax"
-                            min="0" 
-                            max="500" 
-                            value="{{ request('precio_max', 500) }}"
-                            oninput="actualizarPrecioMax(this.value)">
-                    </div>
-
-                    {{-- Rangos predefinidos --}}
-                    <div class="price-presets d-flex flex-wrap gap-1">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setPrecioRango(0, 20)">0-20€</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setPrecioRango(20, 50)">20-50€</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setPrecioRango(50, 100)">50-100€</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setPrecioRango(100, 500)">+100€</button>
-                    </div>
                 </div>
             </div>
+        </div>
 
-            {{-- Filtro por Disponibilidad --}}
-            <div class="filter-section mb-4">
-                <h6 class="filter-title fw-bold mb-3">
-                    <i class="bi bi-box-seam me-2"></i>Disponibilidad
-                </h6>
-                <div class="filter-options">
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" 
-                            type="checkbox" 
+        {{-- Filtro por Disponibilidad --}}
+        <div class="filter-section">
+            <h6 class="filter-title" data-bs-toggle="collapse" data-bs-target="#filtroDisponibilidad" aria-expanded="true">
+                <span><i class="bi bi-box-seam"></i>Disponibilidad</span>
+                <i class="bi bi-chevron-down filter-toggle-icon"></i>
+            </h6>
+            <div class="collapse show" id="filtroDisponibilidad">
+                <div class="availability-options">
+                    <label class="availability-option {{ in_array('en_stock', (array)request('disponibilidad', [])) ? 'active' : '' }}">
+                        <input type="checkbox" 
                             name="disponibilidad[]" 
-                            value="en_stock" 
-                            id="disp_stock"
-                            {{ in_array('en_stock', request('disponibilidad', [])) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="disp_stock">
-                            <i class="bi bi-check-circle text-success me-1"></i>En stock
-                        </label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" 
-                            type="checkbox" 
+                            value="en_stock"
+                            {{ in_array('en_stock', (array)request('disponibilidad', [])) ? 'checked' : '' }}
+                            onchange="this.form.submit()">
+                        <span class="availability-icon in-stock">
+                            <i class="bi bi-check-lg"></i>
+                        </span>
+                        <span class="availability-text">En stock</span>
+                    </label>
+                    <label class="availability-option {{ in_array('ultimas_unidades', (array)request('disponibilidad', [])) ? 'active' : '' }}">
+                        <input type="checkbox" 
                             name="disponibilidad[]" 
-                            value="ultimas_unidades" 
-                            id="disp_ultimas"
-                            {{ in_array('ultimas_unidades', request('disponibilidad', [])) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="disp_ultimas">
-                            <i class="bi bi-exclamation-circle text-warning me-1"></i>Últimas unidades
-                        </label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" 
-                            type="checkbox" 
+                            value="ultimas_unidades"
+                            {{ in_array('ultimas_unidades', (array)request('disponibilidad', [])) ? 'checked' : '' }}
+                            onchange="this.form.submit()">
+                        <span class="availability-icon low-stock">
+                            <i class="bi bi-exclamation"></i>
+                        </span>
+                        <span class="availability-text">Últimas unidades</span>
+                    </label>
+                    <label class="availability-option {{ in_array('agotado', (array)request('disponibilidad', [])) ? 'active' : '' }}">
+                        <input type="checkbox" 
                             name="disponibilidad[]" 
-                            value="agotado" 
-                            id="disp_agotado"
-                            {{ in_array('agotado', request('disponibilidad', [])) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="disp_agotado">
-                            <i class="bi bi-x-circle text-danger me-1"></i>Agotado
-                        </label>
-                    </div>
+                            value="agotado"
+                            {{ in_array('agotado', (array)request('disponibilidad', [])) ? 'checked' : '' }}
+                            onchange="this.form.submit()">
+                        <span class="availability-icon out-of-stock">
+                            <i class="bi bi-x-lg"></i>
+                        </span>
+                        <span class="availability-text">Agotado</span>
+                    </label>
                 </div>
             </div>
+        </div>
 
-            {{-- Filtro por Ofertas --}}
-            <div class="filter-section mb-4">
-                <h6 class="filter-title fw-bold mb-3">
-                    <i class="bi bi-percent me-2"></i>Ofertas
-                </h6>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" 
-                        type="checkbox" 
+        {{-- Filtro por Categoría --}}
+        @if(isset($categorias) && $categorias->count() > 0)
+        <div class="filter-section">
+            <h6 class="filter-title" data-bs-toggle="collapse" data-bs-target="#filtroCategoria" aria-expanded="true">
+                <span><i class="bi bi-tag"></i>Categoría</span>
+                <i class="bi bi-chevron-down filter-toggle-icon"></i>
+            </h6>
+            <div class="collapse show" id="filtroCategoria">
+                <div class="filter-options categories-list">
+                    @foreach($categorias as $categoria)
+                        <label class="filter-checkbox {{ in_array($categoria->id, (array)request('categorias', [])) ? 'active' : '' }}">
+                            <input type="checkbox" 
+                                name="categorias[]" 
+                                value="{{ $categoria->id }}"
+                                {{ in_array($categoria->id, (array)request('categorias', [])) ? 'checked' : '' }}
+                                onchange="this.form.submit()">
+                            <span class="filter-checkbox-content">
+                                <span class="filter-checkbox-label">{{ $categoria->nombre }}</span>
+                                <span class="filter-checkbox-count">{{ $categoria->productos_count ?? 0 }}</span>
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- Filtro por Ofertas --}}
+        <div class="filter-section">
+            <h6 class="filter-title" data-bs-toggle="collapse" data-bs-target="#filtroOfertas" aria-expanded="true">
+                <span><i class="bi bi-percent"></i>Ofertas</span>
+                <i class="bi bi-chevron-down filter-toggle-icon"></i>
+            </h6>
+            <div class="collapse show" id="filtroOfertas">
+                <label class="offer-toggle {{ request('solo_ofertas') ? 'active' : '' }}">
+                    <input type="checkbox" 
                         name="solo_ofertas" 
-                        value="1" 
-                        id="soloOfertas"
-                        {{ request('solo_ofertas') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="soloOfertas">Solo productos en oferta</label>
-                </div>
+                        value="1"
+                        {{ request('solo_ofertas') ? 'checked' : '' }}
+                        onchange="this.form.submit()">
+                    <span class="offer-toggle-track">
+                        <span class="offer-toggle-thumb"></span>
+                    </span>
+                    <span class="offer-toggle-label">
+                        <i class="bi bi-lightning-fill"></i>
+                        Solo productos en oferta
+                    </span>
+                </label>
             </div>
+        </div>
 
-            {{-- Botón Filtrar --}}
-            <div class="filter-actions d-grid gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-funnel me-2"></i>Aplicar filtros
-                </button>
-                <a href="{{ route('productos.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-lg me-2"></i>Limpiar todo
-                </a>
-            </div>
-        </form>
-    </div>
+        {{-- Botones de Acción --}}
+        <div class="filter-actions">
+            <button type="submit" class="btn-apply-filters">
+                <i class="bi bi-funnel"></i>
+                <span>Aplicar filtros</span>
+            </button>
+            <a href="{{ route('productos.index') }}" class="btn-clear-filters">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                <span>Limpiar todo</span>
+            </a>
+        </div>
+    </form>
 </div>
 
 {{-- Scripts para el panel de filtros --}}
 <script>
-    function actualizarPrecioMin(valor) {
-        document.getElementById('precioMin').value = valor;
-        document.getElementById('precioMinLabel').textContent = valor + '€';
-    }
-
-    function actualizarPrecioMax(valor) {
-        document.getElementById('precioMax').value = valor;
-        document.getElementById('precioMaxLabel').textContent = valor + '€';
-    }
-
     function setPrecioRango(min, max) {
-        document.getElementById('precioMin').value = min;
-        document.getElementById('precioMax').value = max;
-        document.getElementById('priceRangeMin').value = min;
-        document.getElementById('priceRangeMax').value = max;
-        document.getElementById('precioMinLabel').textContent = min + '€';
-        document.getElementById('precioMaxLabel').textContent = max + '€';
+        document.getElementById('precioMin').value = min || '';
+        document.getElementById('precioMax').value = max || '';
+        document.getElementById('filtrosForm').submit();
     }
 
-    // Sincronizar inputs con sliders
-    document.getElementById('precioMin')?.addEventListener('input', function() {
-        document.getElementById('priceRangeMin').value = this.value;
-        document.getElementById('precioMinLabel').textContent = this.value + '€';
+    // Aplicar filtros de precio al presionar Enter
+    document.getElementById('precioMin')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('filtrosForm').submit();
+        }
     });
 
-    document.getElementById('precioMax')?.addEventListener('input', function() {
-        document.getElementById('priceRangeMax').value = this.value;
-        document.getElementById('precioMaxLabel').textContent = this.value + '€';
+    document.getElementById('precioMax')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('filtrosForm').submit();
+        }
+    });
+
+    // Toggle icon rotation
+    document.querySelectorAll('.filter-title[data-bs-toggle="collapse"]').forEach(function(title) {
+        title.addEventListener('click', function() {
+            this.classList.toggle('collapsed');
+        });
     });
 </script>

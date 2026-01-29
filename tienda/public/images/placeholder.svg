@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect fill="#e9ecef" width="400" height="400"/>
+  <text fill="#6c757d" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" x="200" y="200">
+    Sin imagen
+  </text>
+  <path fill="#adb5bd" d="M160 140h80v80h-80z M170 150v60h60v-60h-60z M180 170l15 20 10-10 25 30h-60l10-40z"/>
+</svg>

@@ -42,10 +42,19 @@ class Figura extends Model
     }
 
     /**
-     * Obtener la imagen principal
+     * Obtener la imagen principal (relación)
      */
     public function imagenPrincipal()
     {
         return $this->morphOne(Imagen::class, 'imageable')->where('es_principal', true);
+    }
+
+    /**
+     * Accessor para obtener la URL de la imagen principal
+     */
+    public function getImagenPrincipalAttribute()
+    {
+        $imagen = $this->imagenes()->where('es_principal', true)->first();
+        return $imagen ? asset($imagen->ruta) : asset('images/placeholder.svg');
     }
 }

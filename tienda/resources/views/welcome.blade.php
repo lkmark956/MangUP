@@ -3,108 +3,213 @@
 @section('title', 'MangUP - Tu tienda de manga y anime')
 
 @section('content')
-    <!-- Hero Section -->
-    <section class="hero text-center">
+    {{-- Hero Cinematográfico --}}
+    <section class="hero-cinematic">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-badge">マンガアップ</span>
+            <h1 class="hero-title">Descubre el universo manga</h1>
+            <p class="hero-subtitle">Colecciones exclusivas · Figuras premium · Merchandising oficial</p>
+            <div class="hero-actions">
+                <a href="{{ route('productos.index') }}" class="btn-hero-primary">
+                    Explorar catálogo
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    {{-- Marquesina de series --}}
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span>JUJUTSU KAISEN</span>
+            <span>•</span>
+            <span>MY HERO ACADEMIA</span>
+            <span>•</span>
+            <span>CHAINSAW MAN</span>
+            <span>•</span>
+            <span>ONE PIECE</span>
+            <span>•</span>
+            <span>DEMON SLAYER</span>
+            <span>•</span>
+            <span>NARUTO</span>
+            <span>•</span>
+            <span>DRAGON BALL</span>
+            <span>•</span>
+            <span>BLEACH</span>
+            <span>•</span>
+            <span>JUJUTSU KAISEN</span>
+            <span>•</span>
+            <span>MY HERO ACADEMIA</span>
+            <span>•</span>
+            <span>CHAINSAW MAN</span>
+            <span>•</span>
+            <span>ONE PIECE</span>
+            <span>•</span>
+        </div>
+    </div>
+
+    {{-- Categorías con diseño editorial --}}
+    <section class="section-categories">
         <div class="container">
-            <h1>Bienvenido a MangUP</h1>
-            <p class="lead mb-4">Tu tienda online de manga, figuras y merchandising anime</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="#" class="btn btn-light btn-lg">
-                    <i class="bi bi-book me-2"></i>Ver Mangas
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2 class="section-title">Categorías</h2>
+            </div>
+            
+            <div class="categories-grid">
+                <a href="{{ route('productos.index') }}?tipo=manga" class="category-card category-manga">
+                    <div class="category-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="category-info">
+                        <h3>Mangas</h3>
+                        <p>Los mejores títulos en español</p>
+                    </div>
+                    <span class="category-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
                 </a>
-                <a href="#" class="btn btn-outline-light btn-lg">
-                    <i class="bi bi-stars me-2"></i>Ver Figuras
+                
+                <a href="{{ route('productos.index') }}?tipo=figura" class="category-card category-figuras">
+                    <div class="category-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <div class="category-info">
+                        <h3>Figuras</h3>
+                        <p>Coleccionables premium</p>
+                    </div>
+                    <span class="category-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+                
+                <a href="{{ route('productos.index') }}?tipo=merch" class="category-card category-merch">
+                    <div class="category-icon">
+                        <i class="bi bi-bag"></i>
+                    </div>
+                    <div class="category-info">
+                        <h3>Merch</h3>
+                        <p>Camisetas, tazas y más</p>
+                    </div>
+                    <span class="category-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Categorías destacadas -->
-    <section class="container mb-5">
-        <h2 class="text-center mb-4">Explora nuestras categorías</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card card-product h-100 text-center p-4">
-                    <div class="card-body">
-                        <i class="bi bi-book display-1 text-primary mb-3"></i>
-                        <h4>Mangas</h4>
-                        <p class="text-muted">Descubre los mejores títulos de manga en español</p>
-                        <a href="#" class="btn btn-outline-primary">Ver mangas</a>
+    {{-- Productos destacados --}}
+    <section class="section-featured">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2 class="section-title">Destacados</h2>
+                <a href="{{ route('productos.index') }}" class="section-link">
+                    Ver todo <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="products-showcase">
+                @foreach($productosDestacados as $producto)
+                    @include('partials.card-producto', ['producto' => $producto])
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- Banner de valor --}}
+    <section class="value-banner">
+        <div class="container">
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <div class="value-text">
+                        <h4>Envío gratuito</h4>
+                        <p>En pedidos +50€</p>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-product h-100 text-center p-4">
-                    <div class="card-body">
-                        <i class="bi bi-stars display-1 text-primary mb-3"></i>
-                        <h4>Figuras</h4>
-                        <p class="text-muted">Colecciona las mejores figuras de tus series favoritas</p>
-                        <a href="#" class="btn btn-outline-primary">Ver figuras</a>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="value-text">
+                        <h4>Pago seguro</h4>
+                        <p>100% protegido</p>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-product h-100 text-center p-4">
-                    <div class="card-body">
-                        <i class="bi bi-bag display-1 text-primary mb-3"></i>
-                        <h4>Merch</h4>
-                        <p class="text-muted">Camisetas, tazas, posters y mucho más</p>
-                        <a href="#" class="btn btn-outline-primary">Ver merch</a>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </div>
+                    <div class="value-text">
+                        <h4>Devolución fácil</h4>
+                        <p>30 días garantía</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <div class="value-text">
+                        <h4>Soporte 24/7</h4>
+                        <p>Siempre disponibles</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Productos destacados (placeholder) -->
-    <section class="container mb-5">
-        <h2 class="text-center mb-4">Productos destacados</h2>
-        <div class="row g-4">
-            @for ($i = 1; $i <= 4; $i++)
-            <div class="col-lg-3 col-md-6">
-                <div class="card card-product h-100">
-                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
-                        <i class="bi bi-image display-1 text-muted"></i>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Producto de ejemplo {{ $i }}</h5>
-                        <p class="text-muted small">Categoría</p>
-                        <p class="price">€XX.XX</p>
-                        <button class="btn btn-primary w-100">
-                            <i class="bi bi-cart-plus me-2"></i>Añadir al carrito
-                        </button>
-                    </div>
-                </div>
+    {{-- Últimos Mangas --}}
+    <section class="section-latest">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2 class="section-title">Últimos Mangas</h2>
             </div>
-            @endfor
-        </div>
-        <div class="text-center mt-4">
-            <a href="#" class="btn btn-outline-primary btn-lg">Ver todos los productos</a>
-        </div>
-    </section>
-
-    <!-- Banner promocional -->
-    <section class="container mb-5">
-        <div class="card border-0 text-white" style="background: linear-gradient(135deg, #E76F00 0%, #FFB800 100%);">
-            <div class="card-body text-center py-5">
-                <h3><i class="bi bi-truck me-2"></i>Envío gratis en pedidos superiores a 50€</h3>
-                <p class="mb-0">Entrega en 24-48 horas en toda España</p>
+            
+            <div class="products-showcase">
+                @foreach($ultimosMangas as $manga)
+                    @include('partials.card-producto', ['producto' => $manga])
+                @endforeach
             </div>
         </div>
     </section>
 
-    <!-- Géneros de Manga -->
-    <section class="container mb-5">
-        <h2 class="text-center mb-4">Géneros de Manga</h2>
-        <div class="row g-3 justify-content-center">
-            @php
-                $generos = ['Acción', 'Romance', 'Terror', 'Fantasía', 'Comedia', 'Aventura', 'Drama', 'Ciencia Ficción', 'Misterio', 'Deportes'];
-            @endphp
-            @foreach ($generos as $genero)
-            <div class="col-auto">
-                <a href="#" class="btn btn-outline-secondary">{{ $genero }}</a>
+    {{-- Figuras Destacadas --}}
+    <section class="section-figures">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">04</span>
+                <h2 class="section-title">Figuras Colección</h2>
             </div>
-            @endforeach
+            
+            <div class="products-showcase">
+                @foreach($figurasDestacadas as $figura)
+                    @include('partials.card-producto', ['producto' => $figura])
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- CTA Final --}}
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>¿Listo para tu próxima aventura?</h2>
+                <p>Únete a miles de otakus que ya confían en MangUP</p>
+                <a href="{{ route('productos.index') }}" class="btn-cta">
+                    Explorar tienda
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
         </div>
     </section>
 @endsection

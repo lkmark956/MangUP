@@ -10,75 +10,41 @@ class MerchSeeder extends Seeder
     public function run(): void
     {
         $merchs = [
+            // Solo los 5 productos que tienen imágenes reales
             [
                 'nombre' => 'Camiseta Naruto Uzumaki',
-                'descripcion' => 'Camiseta 100% algodón con diseño de Naruto',
+                'descripcion' => 'Camiseta 100% algodón con diseño exclusivo de Naruto Uzumaki en modo Sabio de los Seis Caminos. Estampado de alta calidad resistente a múltiples lavados. Disponible en varias tallas.',
                 'precio' => 24.95,
                 'disponibilidad' => true,
                 'categoria_merch_id' => 1 // Camisetas
             ],
             [
                 'nombre' => 'Camiseta One Piece Luffy',
-                'descripcion' => 'Camiseta oficial de Luffy',
+                'descripcion' => 'Camiseta oficial de Monkey D. Luffy con el diseño del Gear 5. Material 100% algodón premium. Perfecta para fans de la serie.',
                 'precio' => 24.95,
                 'disponibilidad' => true,
                 'categoria_merch_id' => 1
             ],
             [
-                'nombre' => 'Sudadera Dragon Ball',
-                'descripcion' => 'Sudadera con Goku Super Saiyan',
+                'nombre' => 'Sudadera Dragon Ball - Goku',
+                'descripcion' => 'Sudadera con capucha y diseño de Goku Super Saiyan Blue. Interior afelpado para máximo confort. Bolsillo canguro frontal.',
                 'precio' => 39.95,
                 'disponibilidad' => true,
                 'categoria_merch_id' => 2 // Sudaderas
             ],
             [
                 'nombre' => 'Taza Attack on Titan',
-                'descripcion' => 'Taza cerámica de Attack on Titan',
+                'descripcion' => 'Taza de cerámica de 330ml con diseño de las Alas de la Libertad del Cuerpo de Exploración. Apta para microondas y lavavajillas.',
                 'precio' => 12.95,
                 'disponibilidad' => true,
                 'categoria_merch_id' => 3 // Tazas
             ],
             [
                 'nombre' => 'Poster Demon Slayer',
-                'descripcion' => 'Poster tamaño A2',
+                'descripcion' => 'Poster premium tamaño A2 (42x59.4cm) de Demon Slayer: Kimetsu no Yaiba. Papel de alta calidad 200g/m². Incluye los personajes principales.',
                 'precio' => 9.95,
                 'disponibilidad' => true,
                 'categoria_merch_id' => 4 // Posters
-            ],
-            [
-                'nombre' => 'Llavero Jujutsu Kaisen',
-                'descripcion' => 'Llavero acrílico',
-                'precio' => 6.95,
-                'disponibilidad' => true,
-                'categoria_merch_id' => 5 // Llaveros
-            ],
-            [
-                'nombre' => 'Mochila One Piece',
-                'descripcion' => 'Mochila escolar de One Piece',
-                'precio' => 49.95,
-                'disponibilidad' => true,
-                'categoria_merch_id' => 6 // Mochilas
-            ],
-            [
-                'nombre' => 'Camiseta Chainsaw Man',
-                'descripcion' => 'Camiseta con diseño de Chainsaw Man',
-                'precio' => 25.95,
-                'disponibilidad' => true,
-                'categoria_merch_id' => 1
-            ],
-            [
-                'nombre' => 'Sudadera My Hero Academia',
-                'descripcion' => 'Sudadera con Deku',
-                'precio' => 42.95,
-                'disponibilidad' => true,
-                'categoria_merch_id' => 2
-            ],
-            [
-                'nombre' => 'Taza Sailor Moon',
-                'descripcion' => 'Taza mágica Sailor Moon',
-                'precio' => 13.95,
-                'disponibilidad' => true,
-                'categoria_merch_id' => 3
             ],
         ];
 

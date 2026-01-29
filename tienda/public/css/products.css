@@ -1,0 +1,288 @@
+/* ========================================
+   MangUP - Product Cards
+   ======================================== */
+
+/* ==========================================
+   Product Card
+   ========================================== */
+.product-card {
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-normal);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-primary);
+}
+
+.product-card-link {
+    display: block;
+}
+
+/* Image Container */
+.product-card-image {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-light);
+}
+
+.product-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.product-card:hover .product-card-image img {
+    transform: scale(1.08);
+}
+
+/* Type Badge */
+.product-type-badge {
+    position: absolute;
+    top: var(--spacing-sm);
+    left: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: var(--radius-sm);
+}
+
+.product-type-badge.manga {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.product-type-badge.figura {
+    background: var(--color-secondary);
+    color: var(--color-white);
+}
+
+.product-type-badge.merch {
+    background: var(--color-accent);
+    color: var(--color-secondary);
+}
+
+/* Stock Badge */
+.stock-badge {
+    position: absolute;
+    bottom: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--radius-sm);
+}
+
+.stock-badge.low {
+    background: var(--color-accent);
+    color: var(--color-secondary);
+}
+
+.stock-badge.out {
+    background: var(--color-danger);
+    color: var(--color-white);
+}
+
+/* Quick View Button */
+.quick-view-btn {
+    position: absolute;
+    bottom: var(--spacing-sm);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-white);
+    color: var(--color-text);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.product-card:hover .quick-view-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.quick-view-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* Card Info */
+.product-card-info {
+    padding: var(--spacing-md);
+}
+
+.product-category {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.product-name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-secondary);
+    line-height: var(--line-height-normal);
+    margin-bottom: var(--spacing-sm);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(var(--font-size-sm) * var(--line-height-normal) * 2);
+}
+
+.product-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.product-price {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-primary);
+}
+
+.product-stock {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+}
+
+.product-stock.available {
+    color: var(--color-success);
+}
+
+.product-stock.low {
+    color: #e65100;
+}
+
+.product-stock.out {
+    color: var(--color-danger);
+}
+
+.product-stock i {
+    font-size: 0.5rem;
+}
+
+/* ==========================================
+   Card Variants
+   ========================================== */
+
+/* Horizontal Card */
+.product-card-horizontal {
+    display: flex;
+    flex-direction: row;
+}
+
+.product-card-horizontal .product-card-image {
+    width: 120px;
+    aspect-ratio: auto;
+    flex-shrink: 0;
+}
+
+.product-card-horizontal .product-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Compact Card */
+.product-card-compact .product-card-info {
+    padding: var(--spacing-sm);
+}
+
+.product-card-compact .product-name {
+    font-size: var(--font-size-xs);
+}
+
+.product-card-compact .product-price {
+    font-size: var(--font-size-base);
+}
+
+/* Featured Card */
+.product-card-featured {
+    grid-column: span 2;
+}
+
+.product-card-featured .product-card-image {
+    aspect-ratio: 16/9;
+}
+
+.product-card-featured .product-card-info {
+    padding: var(--spacing-lg);
+}
+
+.product-card-featured .product-name {
+    font-size: var(--font-size-lg);
+    -webkit-line-clamp: 3;
+}
+
+.product-card-featured .product-price {
+    font-size: var(--font-size-2xl);
+}
+
+/* ==========================================
+   Add to Cart Animation
+   ========================================== */
+.product-card-add-btn {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-white);
+    border-radius: var(--radius-circle);
+    color: var(--color-text);
+    box-shadow: var(--shadow-sm);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.product-card:hover .product-card-add-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.product-card-add-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.product-card-add-btn.added {
+    background: var(--color-success);
+    color: var(--color-white);
+}
+
+.product-card-add-btn.added i::before {
+    content: "\F26B"; /* bi-check-lg */
+}

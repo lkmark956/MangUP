@@ -1,86 +1,89 @@
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <!-- Logo -->
-        <a class="navbar-brand" href="{{ url('/') }}">
+        {{-- Logo --}}
+        <a class="navbar-brand" href="{{ route('home') }}">
             Mang<span>UP</span>
         </a>
         
-        <!-- Mobile Toggle -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-            <span class="navbar-toggler-icon"></span>
+        {{-- Mobile Toggle --}}
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <i class="bi bi-list fs-4"></i>
         </button>
         
-        <!-- Navigation -->
+        {{-- Navigation --}}
         <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/') }}">
-                        <i class="bi bi-house-door"></i> Inicio
-                    </a>
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Inicio</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-book"></i> Mangas
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Todos los Mangas</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Acción</a></li>
-                        <li><a class="dropdown-item" href="#">Romance</a></li>
-                        <li><a class="dropdown-item" href="#">Terror</a></li>
-                        <li><a class="dropdown-item" href="#">Fantasía</a></li>
-                        <li><a class="dropdown-item" href="#">Comedia</a></li>
-                        <li><a class="dropdown-item" href="#">Ver todas las categorías</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link {{ request('tipo') == 'manga' ? 'active' : '' }}" href="{{ route('productos.index', ['tipo' => 'manga']) }}">Mangas</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-stars"></i> Figuras
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Todas las Figuras</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">One Piece</a></li>
-                        <li><a class="dropdown-item" href="#">Naruto</a></li>
-                        <li><a class="dropdown-item" href="#">Dragon Ball</a></li>
-                        <li><a class="dropdown-item" href="#">Demon Slayer</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link {{ request('tipo') == 'figura' ? 'active' : '' }}" href="{{ route('productos.index', ['tipo' => 'figura']) }}">Figuras</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-bag"></i> Merch
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Todo el Merch</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Camisetas</a></li>
-                        <li><a class="dropdown-item" href="#">Sudaderas</a></li>
-                        <li><a class="dropdown-item" href="#">Tazas</a></li>
-                        <li><a class="dropdown-item" href="#">Posters</a></li>
-                        <li><a class="dropdown-item" href="#">Llaveros</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link {{ request('tipo') == 'merch' ? 'active' : '' }}" href="{{ route('productos.index', ['tipo' => 'merch']) }}">Merch</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('productos.index') && !request('tipo') ? 'active' : '' }}" href="{{ route('productos.index') }}">Catálogo</a>
                 </li>
             </ul>
             
-            <!-- Search -->
-            <form class="d-flex me-3" role="search">
-                <div class="input-group">
-                    <input class="form-control" type="search" placeholder="Buscar productos..." aria-label="Buscar">
-                    <button class="btn btn-outline-secondary" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-            </form>
-            
-            <!-- User & Cart -->
-            <div class="d-flex align-items-center">
-                <a href="#" class="btn btn-outline-secondary me-2">
-                    <i class="bi bi-person"></i>
+            {{-- Icons & Auth --}}
+            <div class="nav-icons">
+                {{-- Search --}}
+                <a href="{{ route('productos.index') }}" class="nav-icon-btn" title="Buscar">
+                    <i class="bi bi-search"></i>
                 </a>
-                <a href="#" class="btn btn-cart">
-                    <i class="bi bi-cart3"></i>
-                    <span class="cart-badge">0</span>
-                </a>
+                
+                @auth
+                    {{-- User Dropdown --}}
+                    <div class="user-dropdown">
+                        <div class="user-dropdown-toggle">
+                            <div class="user-avatar">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                            <span class="user-name d-none d-lg-inline">{{ Str::limit(Auth::user()->name, 10) }}</span>
+                            <i class="bi bi-chevron-down d-none d-lg-inline" style="font-size: 0.7rem;"></i>
+                        </div>
+                        <div class="user-dropdown-menu">
+                            <a href="{{ route('cuenta.index') }}">
+                                <i class="bi bi-person"></i>Mi cuenta
+                            </a>
+                            <a href="#">
+                                <i class="bi bi-box-seam"></i>Mis pedidos
+                            </a>
+                            <a href="#">
+                                <i class="bi bi-heart"></i>Favoritos
+                            </a>
+                            <hr>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit">
+                                    <i class="bi bi-box-arrow-right"></i>Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    {{-- Cart --}}
+                    <a href="{{ route('carrito.index') }}" class="btn-cart position-relative">
+                        <i class="bi bi-bag"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                @else
+                    {{-- Login Button --}}
+                    <a href="{{ route('login') }}" class="nav-icon-btn" title="Iniciar sesión">
+                        <i class="bi bi-person"></i>
+                    </a>
+                    
+                    {{-- Cart (disabled for guests) --}}
+                    <a href="{{ route('login') }}" class="btn-cart position-relative" title="Inicia sesión para ver tu carrito">
+                        <i class="bi bi-bag"></i>
+                        <span class="cart-badge">0</span>
+                    </a>
+                @endauth
             </div>
         </div>
     </div>

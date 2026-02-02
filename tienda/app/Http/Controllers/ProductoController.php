@@ -211,6 +211,6 @@ class ProductoController extends Controller
                 ->get();
         }
 
-        return view('productos.show', compact('producto', 'productosRelacionados'));
+        return view('productos.show', compact('producto', 'tipo', 'productosRelacionados'));
     }
 }

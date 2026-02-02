@@ -21,7 +21,7 @@
         <div class="product-detail-grid">
             {{-- Columna izquierda: Imagen --}}
             <div class="product-image-section">
-                <div class="product-main-image" onclick="openLightbox('{{ $producto->imagen_principal ?? asset('images/placeholder.svg') }}')">
+                <div class="product-main-image" data-lightbox="{{ $producto->imagen_principal ?? asset('images/placeholder.svg') }}">
                     <img src="{{ $producto->imagen_principal ?? asset('images/placeholder.svg') }}" 
                          alt="{{ $producto->nombre }}"
                          id="mainProductImage">
@@ -42,7 +42,7 @@
                 <div class="product-thumbnails">
                     @foreach($producto->imagenes as $index => $imagen)
                     <button class="thumbnail-btn {{ $index === 0 ? 'active' : '' }}" 
-                            onclick="changeImage('{{ asset($imagen->ruta) }}', this)">
+                            data-image="{{ asset($imagen->ruta) }}">
                         <img src="{{ asset($imagen->ruta) }}" alt="Vista {{ $index + 1 }}">
                     </button>
                     @endforeach
@@ -93,21 +93,27 @@
 
                 {{-- Acciones de compra --}}
                 <div class="detail-actions">
-                    <div class="quantity-control">
-                        <button type="button" class="qty-btn minus" onclick="updateQty(-1)">
-                            <i class="bi bi-dash"></i>
+                    <form action="{{ route('carrito.agregar') }}" method="POST" class="add-to-cart-form">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $producto->id }}">
+                        <input type="hidden" name="tipo" value="{{ $tipo ?? $producto->tipo ?? 'manga' }}">
+                        
+                        <div class="quantity-control">
+                            <button type="button" class="qty-btn minus" onclick="updateQty(-1)">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <input type="number" id="productQty" name="cantidad" value="1" min="1" 
+                                   max="{{ $producto->stock ?? 99 }}" readonly>
+                            <button type="button" class="qty-btn plus" onclick="updateQty(1)">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <button type="submit" class="btn-add-cart" {{ (!isset($producto->stock) || $producto->stock <= 0) ? 'disabled' : '' }}>
+                            <i class="bi bi-bag-plus"></i>
+                            <span>Añadir al carrito</span>
                         </button>
-                        <input type="number" id="productQty" value="1" min="1" 
-                               max="{{ $producto->stock ?? 99 }}" readonly>
-                        <button type="button" class="qty-btn plus" onclick="updateQty(1)">
-                            <i class="bi bi-plus"></i>
-                        </button>
-                    </div>
-                    
-                    <button class="btn-add-cart" {{ (!isset($producto->stock) || $producto->stock <= 0) ? 'disabled' : '' }}>
-                        <i class="bi bi-bag-plus"></i>
-                        <span>Añadir al carrito</span>
-                    </button>
+                    </form>
                 </div>
 
                 {{-- Características según tipo --}}
@@ -216,18 +222,6 @@
 
 @push('scripts')
 <script>
-// Cambiar imagen principal
-function changeImage(src, btn) {
-    document.getElementById('mainProductImage').src = src;
-    document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    // Actualizar el onclick del contenedor para que abra el lightbox con la nueva imagen
-    document.querySelector('.product-main-image').onclick = function() {
-        openLightbox(src);
-    };
-}
-
 // Control de cantidad
 function updateQty(delta) {
     const input = document.getElementById('productQty');
@@ -237,5 +231,61 @@ function updateQty(delta) {
         input.value = val;
     }
 }
+
+// Actualizar carrito al agregar producto
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.add-to-cart-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const cantidad = parseInt(formData.get('cantidad'));
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .catch(error => {
+                // Si no es JSON, enviar el formulario normalmente
+                form.submit();
+            });
+        });
+    }
+
+    // Manejar click en imagen principal para abrir lightbox
+    const mainImage = document.querySelector('.product-main-image');
+    if (mainImage) {
+        mainImage.addEventListener('click', function() {
+            const imageSrc = this.getAttribute('data-lightbox');
+            openLightbox(imageSrc);
+        });
+    }
+
+    // Manejar cambio de imagen en miniaturas
+    const thumbnails = document.querySelectorAll('.thumbnail-btn');
+    thumbnails.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const imageSrc = this.getAttribute('data-image');
+            const mainImg = document.getElementById('mainProductImage');
+            if (mainImg) {
+                mainImg.src = imageSrc;
+            }
+            
+            // Actualizar clase active
+            thumbnails.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Actualizar data-lightbox del contenedor principal
+            if (mainImage) {
+                mainImage.setAttribute('data-lightbox', imageSrc);
+            }
+        });
+    });
+});
 </script>
 @endpush

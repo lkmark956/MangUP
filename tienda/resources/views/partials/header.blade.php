@@ -48,14 +48,11 @@
                             <i class="bi bi-chevron-down d-none d-lg-inline" style="font-size: 0.7rem;"></i>
                         </div>
                         <div class="user-dropdown-menu">
-                            <a href="{{ route('cuenta.index') }}">
+                            <a href="{{ route('cuenta.datos-personales') }}">
                                 <i class="bi bi-person"></i>Mi cuenta
                             </a>
-                            <a href="#">
+                            <a href="{{ route('cuenta.pedidos') }}">
                                 <i class="bi bi-box-seam"></i>Mis pedidos
-                            </a>
-                            <a href="#">
-                                <i class="bi bi-heart"></i>Favoritos
                             </a>
                             <hr>
                             <form action="{{ route('logout') }}" method="POST">

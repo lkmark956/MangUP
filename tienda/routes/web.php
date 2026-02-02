@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\CuentaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Models\Manga;
@@ -70,8 +71,19 @@ Route::middleware('auth')->group(function () {
         return back()->with('success', 'Producto agregado al carrito');
     })->name('carrito.agregar');
     
-    // Perfil de usuario
-    Route::get('/mi-cuenta', function () {
-        return view('cuenta.index');
-    })->name('cuenta.index');
+    // Mi Cuenta
+    Route::get('/mi-cuenta', [CuentaController::class, 'datosPersonales'])->name('cuenta.index');
+    Route::get('/mi-cuenta/datos-personales', [CuentaController::class, 'datosPersonales'])->name('cuenta.datos-personales');
+    Route::put('/mi-cuenta/datos-personales', [CuentaController::class, 'actualizarDatos'])->name('cuenta.actualizar-datos');
+    Route::post('/mi-cuenta/cambio-password', [CuentaController::class, 'cambiarPassword'])->name('cuenta.actualizar-password');
+    
+    // Mis Pedidos
+    Route::get('/mi-cuenta/pedidos', [CuentaController::class, 'misPedidos'])->name('cuenta.pedidos');
+    
+    // Direcciones
+    Route::get('/mi-cuenta/direcciones', [CuentaController::class, 'direcciones'])->name('cuenta.direcciones');
+    Route::post('/mi-cuenta/direcciones', [CuentaController::class, 'agregarDireccion'])->name('cuenta.agregar-direccion');
+    Route::get('/mi-cuenta/direcciones/{id}/editar', [CuentaController::class, 'editarDireccion'])->name('cuenta.editar-direccion');
+    Route::put('/mi-cuenta/direcciones/{id}', [CuentaController::class, 'actualizarDireccion'])->name('cuenta.actualizar-direccion');
+    Route::delete('/mi-cuenta/direcciones/{id}', [CuentaController::class, 'eliminarDireccion'])->name('cuenta.eliminar-direccion');
 });

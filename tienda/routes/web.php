@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Models\Manga;
@@ -57,19 +58,18 @@ Route::get('/productos', [ProductoController::class, 'index'])->name('productos.
 Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
 
 // ==========================================
+// Rutas del Carrito
+// ==========================================
+Route::post('/carrito/agregar', [CarritoController::class, 'agregar'])->name('carrito.agregar');
+Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
+Route::patch('/carrito/{tipo}/{id}', [CarritoController::class, 'actualizar'])->name('carrito.actualizar');
+Route::delete('/carrito/{tipo}/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
+Route::post('/carrito/vaciar', [CarritoController::class, 'vaciar'])->name('carrito.vaciar');
+
+// ==========================================
 // Rutas Protegidas (requieren login)
 // ==========================================
 Route::middleware('auth')->group(function () {
-    // Carrito
-    Route::get('/carrito', function () {
-        return view('carrito.index');
-    })->name('carrito.index');
-    
-    Route::post('/carrito/agregar', function () {
-        // Lógica para agregar al carrito
-        return back()->with('success', 'Producto agregado al carrito');
-    })->name('carrito.agregar');
-    
     // Perfil de usuario
     Route::get('/mi-cuenta', function () {
         return view('cuenta.index');

@@ -70,7 +70,7 @@
                     {{-- Cart --}}
                     <a href="{{ route('carrito.index') }}" class="btn-cart position-relative">
                         <i class="bi bi-bag"></i>
-                        <span class="cart-badge">0</span>
+                        <span class="cart-badge" id="cartBadge">{{ array_sum(array_column(session('carrito', []), 'cantidad')) }}</span>
                     </a>
                 @else
                     {{-- Login Button --}}

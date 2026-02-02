@@ -62,7 +62,7 @@
             </div>
             
             <div class="categories-grid">
-                <a href="{{ route('productos.index') }}?tipo=manga" class="category-card category-manga">
+                <a href="{{ route('productos.index', ['tipo' => 'manga']) }}" class="category-card category-manga">
                     <div class="category-icon">
                         <i class="bi bi-book"></i>
                     </div>
@@ -75,7 +75,7 @@
                     </span>
                 </a>
                 
-                <a href="{{ route('productos.index') }}?tipo=figura" class="category-card category-figuras">
+                <a href="{{ route('productos.index', ['tipo' => 'figura']) }}" class="category-card category-figuras">
                     <div class="category-icon">
                         <i class="bi bi-trophy"></i>
                     </div>
@@ -88,7 +88,7 @@
                     </span>
                 </a>
                 
-                <a href="{{ route('productos.index') }}?tipo=merch" class="category-card category-merch">
+                <a href="{{ route('productos.index', ['tipo' => 'merch']) }}" class="category-card category-merch">
                     <div class="category-icon">
                         <i class="bi bi-bag"></i>
                     </div>

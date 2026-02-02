@@ -20,11 +20,11 @@
             <div class="col-lg-2 col-md-6 mb-4">
                 <h5>Tienda</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#">Mangas</a></li>
-                    <li class="mb-2"><a href="#">Figuras</a></li>
-                    <li class="mb-2"><a href="#">Merch</a></li>
-                    <li class="mb-2"><a href="#">Novedades</a></li>
-                    <li class="mb-2"><a href="#">Ofertas</a></li>
+                    <li class="mb-2"><a href="{{ route('productos.index', ['tipo' => 'manga']) }}">Mangas</a></li>
+                    <li class="mb-2"><a href="{{ route('productos.index', ['tipo' => 'figura']) }}">Figuras</a></li>
+                    <li class="mb-2"><a href="{{ route('productos.index', ['tipo' => 'merch']) }}">Merch</a></li>
+                    <li class="mb-2"><a href="{{ route('productos.index', ['ordenar' => 'recientes']) }}">Novedades</a></li>
+                    <li class="mb-2"><a href="{{ route('productos.index') }}">Catálogo</a></li>
                 </ul>
             </div>
             
@@ -32,11 +32,11 @@
             <div class="col-lg-2 col-md-6 mb-4">
                 <h5>Información</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#">Sobre nosotros</a></li>
-                    <li class="mb-2"><a href="#">Contacto</a></li>
-                    <li class="mb-2"><a href="#">Política de envío</a></li>
-                    <li class="mb-2"><a href="#">Devoluciones</a></li>
-                    <li class="mb-2"><a href="#">FAQ</a></li>
+                    <li class="mb-2"><a href="{{ route('home') }}">Sobre nosotros</a></li>
+                    <li class="mb-2"><a href="{{ route('home') }}">Contacto</a></li>
+                    <li class="mb-2"><a href="{{ route('home') }}">Política de envío</a></li>
+                    <li class="mb-2"><a href="{{ route('home') }}">Devoluciones</a></li>
+                    <li class="mb-2"><a href="{{ route('home') }}">FAQ</a></li>
                 </ul>
             </div>
             
@@ -67,8 +67,8 @@
                     <p class="mb-0">&copy; {{ date('Y') }} MangUP. Todos los derechos reservados.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="#" class="me-3">Términos y condiciones</a>
-                    <a href="#">Política de privacidad</a>
+                    <a href="{{ route('home') }}" class="me-3">Términos y condiciones</a>
+                    <a href="{{ route('home') }}">Política de privacidad</a>
                 </div>
             </div>
         </div>

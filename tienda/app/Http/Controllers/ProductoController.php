@@ -17,6 +17,19 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
+        // Obtener el filtro de tipo (puede ser string o array)
+        $tipoFiltro = $request->input('tipo');
+        
+        // Normalizar a array si es string
+        if (is_string($tipoFiltro)) {
+            $tipoFiltro = [$tipoFiltro];
+        }
+        
+        // Si no hay filtro de tipo, mostrar todos
+        $mostrarManga = empty($tipoFiltro) || in_array('manga', $tipoFiltro);
+        $mostrarFigura = empty($tipoFiltro) || in_array('figura', $tipoFiltro);
+        $mostrarMerch = empty($tipoFiltro) || in_array('merch', $tipoFiltro);
+        
         // Obtener todos los productos de las diferentes tablas
         $mangasQuery = Manga::query();
         $figurasQuery = Figura::query();
@@ -67,21 +80,31 @@ class ProductoController extends Controller
             }
         }
 
-        // Obtener resultados
-        $mangas = $mangasQuery->get()->map(function ($item) {
-            $item->tipo = 'manga';
-            return $item;
-        });
+        // Obtener resultados según el filtro de tipo
+        $mangas = collect();
+        $figuras = collect();
+        $merchs = collect();
+        
+        if ($mostrarManga) {
+            $mangas = $mangasQuery->get()->map(function ($item) {
+                $item->tipo = 'manga';
+                return $item;
+            });
+        }
 
-        $figuras = $figurasQuery->get()->map(function ($item) {
-            $item->tipo = 'figura';
-            return $item;
-        });
+        if ($mostrarFigura) {
+            $figuras = $figurasQuery->get()->map(function ($item) {
+                $item->tipo = 'figura';
+                return $item;
+            });
+        }
 
-        $merchs = $merchsQuery->get()->map(function ($item) {
-            $item->tipo = 'merch';
-            return $item;
-        });
+        if ($mostrarMerch) {
+            $merchs = $merchsQuery->get()->map(function ($item) {
+                $item->tipo = 'merch';
+                return $item;
+            });
+        }
 
         // Combinar todos los productos
         $todosProductos = $mangas->concat($figuras)->concat($merchs);
@@ -188,6 +211,6 @@ class ProductoController extends Controller
                 ->get();
         }
 
-        return view('productos.show', compact('producto', 'productosRelacionados'));
+        return view('productos.show', compact('producto', 'tipo', 'productosRelacionados'));
     }
 }

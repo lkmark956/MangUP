@@ -14,6 +14,9 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
+     * 
+     * Estos son los campos que se pueden asignar masivamente (create, update).
+     * Añadimos 'is_admin' para poder crear/actualizar administradores.
      *
      * @var list<string>
      */
@@ -21,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -35,6 +39,9 @@ class User extends Authenticatable
 
     /**
      * Get the attributes that should be cast.
+     * 
+     * Los casts convierten automáticamente los valores de la BD.
+     * 'is_admin' => 'boolean' convierte 0/1 a false/true en PHP.
      *
      * @return array<string, string>
      */
@@ -43,6 +50,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -52,5 +60,11 @@ class User extends Authenticatable
     public function direcciones()
     {
         return $this->hasMany(Direccion::class);
+     * Método helper para verificar si el usuario es admin.
+     * Uso: $user->isAdmin() o auth()->user()->isAdmin()
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
     }
 }

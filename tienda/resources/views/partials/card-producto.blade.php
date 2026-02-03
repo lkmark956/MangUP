@@ -4,8 +4,8 @@
         {{-- Imagen --}}
         <div class="product-card-image">
             <img src="{{ $producto->imagen_principal ?? asset('images/placeholder.svg') }}" 
-                 alt="{{ $producto->nombre }}"
-                 loading="lazy">
+                alt="{{ $producto->nombre }}"
+                loading="lazy">
             
             {{-- Badge tipo --}}
             <span class="product-type-badge {{ $producto->tipo ?? 'manga' }}">

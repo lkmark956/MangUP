@@ -17,7 +17,7 @@
         <i class="bi bi-bag"></i> Carrito de Compras
     </h1>
 
-    @if(count($productos) > 0)
+    @if(isset($productos) && count($productos) > 0)
         <div class="row g-4">
             <!-- Lista de productos -->
             <div class="col-lg-8">
@@ -190,7 +190,7 @@
     @endif
 </div>
 
-@if(count($productos) > 0)
+@if(isset($productos) && count($productos) > 0)
     <!-- Modal para confirmar cantidad -->
     <div class="modal fade" id="qtyModal" tabindex="-1">
         <div class="modal-dialog modal-sm">

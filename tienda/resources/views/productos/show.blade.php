@@ -237,23 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('.add-to-cart-form');
     if (form) {
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            const cantidad = parseInt(formData.get('cantidad'));
-            
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                }
-            })
-            .then(response => response.json())
-            .catch(error => {
-                // Si no es JSON, enviar el formulario normalmente
-                form.submit();
-            });
+            // Dejar que el formulario se envíe normalmente
+            // sin preventDefault() ni fetch()
         });
     }
 

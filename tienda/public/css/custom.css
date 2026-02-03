@@ -5,9 +5,9 @@
 
 /* Variables - Paleta FNAC */
 :root {
-    --color-primary: #E4572E;       /* Naranja FNAC característico */
-    --color-primary-dark: #C94A26;  /* Naranja oscuro hover */
-    --color-accent: #FFC107;        /* Amarillo FNAC */
+    --color-primary: #E4572E;
+    --color-primary-dark: #C94A26;
+    --color-accent: #FFC107;
     --color-accent-light: #FFD54F;
     --color-secondary: #333333;     /* Gris oscuro */
     --color-dark: #1A1A1A;          /* Negro intenso */
@@ -1181,4 +1181,87 @@ section {
     .categories-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ========================================
+   Paginación Personalizada
+   ======================================== */
+.pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination-wrapper .pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pagination-wrapper .pagination .page-item .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333333 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.pagination-wrapper .pagination .page-item .page-link:hover {
+    background: #E4572E !important;
+    border-color: #E4572E !important;
+    color: #FFFFFF !important;
+}
+
+.pagination-wrapper .pagination .page-item.active .page-link,
+.pagination-wrapper .pagination .page-item.active .page-link:hover {
+    background: #E4572E !important;
+    border-color: #E4572E !important;
+    color: #FFFFFF !important;
+}
+
+.pagination-wrapper .pagination .page-item.disabled .page-link,
+.pagination-wrapper .pagination .page-item.disabled .page-link:hover {
+    color: #aaa !important;
+    background: #F5F5F5 !important;
+    border-color: #E0E0E0 !important;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 0.85rem;
+    color: #666666;
+}
+
+/* Override Bootstrap pagination */
+.pagination .page-link {
+    color: #333333 !important;
+}
+
+.pagination .page-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(228, 87, 46, 0.25) !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #E4572E !important;
+    border-color: #E4572E !important;
+    color: #FFFFFF !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #E4572E !important;
+    border-color: #E4572E !important;
+    color: #FFFFFF !important;
 }

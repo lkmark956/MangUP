@@ -139,9 +139,9 @@
                         <span class="summary-value">{{ number_format($total, 2) }}€</span>
                     </div>
 
-                    <button class="btn-checkout">
+                    <a href="{{ route('checkout.index') }}" class="btn-checkout">
                         <i class="bi bi-credit-card me-2"></i>Proceder al pago
-                    </button>
+                    </a>
 
                     <div class="summary-info">
                         <i class="bi bi-shield-check"></i>

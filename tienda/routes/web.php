@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CuentaController;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -72,6 +73,14 @@ Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index
 Route::patch('/carrito/{tipo}/{id}', [CarritoController::class, 'actualizar'])->name('carrito.actualizar');
 Route::delete('/carrito/{tipo}/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
 Route::post('/carrito/vaciar', [CarritoController::class, 'vaciar'])->name('carrito.vaciar');
+
+// ==========================================
+// Rutas de Checkout (Stripe)
+// ==========================================
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/crear-sesion', [CheckoutController::class, 'crearSesion'])->name('checkout.crear-sesion');
+Route::get('/checkout/exito', [CheckoutController::class, 'exito'])->name('checkout.exito');
+Route::get('/checkout/cancelado', [CheckoutController::class, 'cancelado'])->name('checkout.cancelado');
 
 // ==========================================
 // Rutas Protegidas (requieren login)

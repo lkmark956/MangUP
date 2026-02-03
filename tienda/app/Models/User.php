@@ -60,6 +60,9 @@ class User extends Authenticatable
     public function direcciones()
     {
         return $this->hasMany(Direccion::class);
+    }
+
+    /**
      * Método helper para verificar si el usuario es admin.
      * Uso: $user->isAdmin() o auth()->user()->isAdmin()
      */

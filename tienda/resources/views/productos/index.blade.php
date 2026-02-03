@@ -70,7 +70,7 @@
                 <!-- Paginación -->
                 @if($productos->hasPages())
                     <div class="d-flex justify-content-center mt-5">
-                        {{ $productos->withQueryString()->links() }}
+                        {{ $productos->withQueryString()->links('vendor.pagination.custom') }}
                     </div>
                 @endif
             @else

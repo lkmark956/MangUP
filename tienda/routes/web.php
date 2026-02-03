@@ -77,16 +77,6 @@ Route::post('/carrito/vaciar', [CarritoController::class, 'vaciar'])->name('carr
 // Rutas Protegidas (requieren login)
 // ==========================================
 Route::middleware('auth')->group(function () {
-    // Carrito
-    Route::get('/carrito', function () {
-        return view('carrito.index');
-    })->name('carrito.index');
-    
-    Route::post('/carrito/agregar', function () {
-        // Lógica para agregar al carrito
-        return back()->with('success', 'Producto agregado al carrito');
-    })->name('carrito.agregar');
-    
     // Mi Cuenta
     Route::get('/mi-cuenta', [CuentaController::class, 'datosPersonales'])->name('cuenta.index');
     Route::get('/mi-cuenta/datos-personales', [CuentaController::class, 'datosPersonales'])->name('cuenta.datos-personales');

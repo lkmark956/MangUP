@@ -136,7 +136,7 @@
                 </div>
                 
                 {{-- Inputs de precio personalizados --}}
-                <div class="price-inputs">
+                <div class="price-inputs price-inputs-vertical">
                     <div class="price-input-group">
                         <label>Mín</label>
                         <div class="price-input-wrapper">
@@ -149,7 +149,6 @@
                             <span class="price-currency">€</span>
                         </div>
                     </div>
-                    <span class="price-separator">—</span>
                     <div class="price-input-group">
                         <label>Máx</label>
                         <div class="price-input-wrapper">

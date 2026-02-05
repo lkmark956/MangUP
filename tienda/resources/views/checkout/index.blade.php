@@ -73,12 +73,24 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted mb-3">Aceptamos las siguientes tarjetas:</p>
-                    <div class="payment-methods d-flex gap-2 align-items-center">
+                    <div class="payment-methods d-flex gap-2 align-items-center mb-3">
                         <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" style="height: 32px;">
                         <img src="https://img.icons8.com/color/48/mastercard-logo.png" alt="Mastercard" style="height: 32px;">
                         <img src="https://img.icons8.com/color/48/amex.png" alt="American Express" style="height: 32px;">
                     </div>
-                    <p class="text-muted small mt-3 mb-0">
+                    
+                    <!-- Información de tarjetas de prueba -->
+                    <div class="alert alert-warning small mb-3">
+                        <strong><i class="bi bi-credit-card me-1"></i>Modo de Prueba - Usa estas tarjetas:</strong>
+                        <div class="mt-2">
+                            <strong>Número:</strong> 4242 4242 4242 4242<br>
+                            <strong>Fecha:</strong> Cualquier fecha futura (ej: 12/34)<br>
+                            <strong>CVC:</strong> Cualquier 3 dígitos (ej: 123)<br>
+                            <strong>Código postal:</strong> Cualquiera (ej: 12345)
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted small mb-0">
                         <i class="bi bi-lock me-1"></i>
                         Todos los pagos son procesados de forma segura a través de Stripe.
                     </p>
@@ -88,8 +100,8 @@
 
         <!-- Total y botón de pago -->
         <div class="col-lg-5">
-            <div class="card checkout-summary sticky-top" style="top: 100px;">
-                <div class="card-header bg-dark text-white">
+            <div class="card checkout-summary position-sticky" style="top: 20px;">
+                <div class="card-header" style="background-color: #E4572E; color: white;">
                     <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Total a Pagar</h5>
                 </div>
                 <div class="card-body">
@@ -162,6 +174,11 @@
                 }
             });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al procesar el pago');
+            }
+
             const data = await response.json();
 
             if (data.error) {
@@ -169,9 +186,14 @@
             }
 
             // Redirigir a Stripe Checkout
-            window.location.href = data.url;
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error('No se recibió URL de pago');
+            }
             
         } catch (error) {
+            console.error('Error:', error);
             checkoutButton.disabled = false;
             loadingDiv.classList.add('d-none');
             errorDiv.classList.remove('d-none');

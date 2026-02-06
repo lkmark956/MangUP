@@ -41,6 +41,19 @@
                                         • {{ $item['producto']->categoria->nombre }}
                                     @endif
                                 </small>
+                                @if(isset($item['variante']))
+                                    <div class="mt-1">
+                                        <small class="text-primary">
+                                            @if($item['variante']->talla)
+                                                <i class="bi bi-rulers"></i> {{ $item['variante']->talla->nombre }}
+                                            @endif
+                                            @if($item['variante']->talla && $item['variante']->color) • @endif
+                                            @if($item['variante']->color)
+                                                <i class="bi bi-palette-fill"></i> {{ $item['variante']->color->nombre }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                @endif
                                 <div class="mt-1">
                                     <span class="text-muted">Cantidad: {{ $item['cantidad'] }}</span>
                                 </div>

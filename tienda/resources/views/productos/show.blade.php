@@ -91,12 +91,60 @@
                     <p>{{ $producto->descripcion ?? 'Sin descripción disponible.' }}</p>
                 </div>
 
+                {{-- Selector de variantes para Merch --}}
+                @if($producto->tipo === 'merch' && isset($producto->variantes) && $producto->variantes->count() > 0)
+                <div class="detail-variants">
+                    <h3>Selecciona tu opción</h3>
+                    
+                    {{-- Selector de Talla --}}
+                    @php
+                        $tallas = $producto->variantes->pluck('talla')->unique()->filter();
+                    @endphp
+                    @if($tallas->count() > 0)
+                    <div class="variant-group">
+                        <label class="variant-label">Talla:</label>
+                        <div class="variant-options" id="tallaOptions">
+                            @foreach($tallas as $talla)
+                            <button type="button" class="variant-btn" data-talla-id="{{ $talla->id }}" data-talla="{{ $talla->nombre }}">
+                                {{ $talla->nombre }}
+                            </button>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    
+                    {{-- Selector de Color --}}
+                    @php
+                        $colores = $producto->variantes->pluck('color')->unique()->filter();
+                    @endphp
+                    @if($colores->count() > 0)
+                    <div class="variant-group">
+                        <label class="variant-label">Color:</label>
+                        <div class="variant-options" id="colorOptions">
+                            @foreach($colores as $color)
+                            <button type="button" class="variant-btn" data-color-id="{{ $color->id }}" data-color="{{ $color->nombre }}">
+                                <span class="color-swatch" style="background-color: {{ $color->hex ?? '#ccc' }}"></span>
+                                {{ $color->nombre }}
+                            </button>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    
+                    <div id="variantError" class="variant-error" style="display: none;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Por favor selecciona todas las opciones
+                    </div>
+                </div>
+                @endif
+
                 {{-- Acciones de compra --}}
                 <div class="detail-actions">
-                    <form action="{{ route('carrito.agregar') }}" method="POST" class="add-to-cart-form">
+                    <form action="{{ route('carrito.agregar') }}" method="POST" class="add-to-cart-form" id="addToCartForm">
                         @csrf
                         <input type="hidden" name="id" value="{{ $producto->id }}">
                         <input type="hidden" name="tipo" value="{{ $tipo ?? $producto->tipo ?? 'manga' }}">
+                        <input type="hidden" name="variante_id" id="varianteIdInput" value="">
                         
                         <div class="quantity-control">
                             <button type="button" class="qty-btn minus" onclick="updateQty(-1)">
@@ -109,7 +157,7 @@
                             </button>
                         </div>
                         
-                        <button type="submit" class="btn-add-cart" {{ (!isset($producto->stock) || $producto->stock <= 0) ? 'disabled' : '' }}>
+                        <button type="submit" class="btn-add-cart" id="addToCartBtn" {{ (!isset($producto->stock) || $producto->stock <= 0) ? 'disabled' : '' }}>
                             <i class="bi bi-bag-plus"></i>
                             <span>Añadir al carrito</span>
                         </button>
@@ -271,6 +319,125 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Manejar selección de variantes
+    const variantes = @json($producto->variantes ?? []);
+    let tallaSeleccionada = null;
+    let colorSeleccionado = null;
+
+    // Botones de talla
+    const tallaBtns = document.querySelectorAll('#tallaOptions .variant-btn');
+    tallaBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tallaBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            tallaSeleccionada = this.getAttribute('data-talla-id');
+            actualizarVariante();
+        });
+    });
+
+    // Botones de color
+    const colorBtns = document.querySelectorAll('#colorOptions .variant-btn');
+    colorBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            colorBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            colorSeleccionado = this.getAttribute('data-color-id');
+            actualizarVariante();
+        });
+    });
+
+    function actualizarVariante() {
+        const variantError = document.getElementById('variantError');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const qtyInput = document.getElementById('productQty');
+        const stockIndicator = document.querySelector('.detail-stock');
+        
+        // Verificar si necesitamos talla y color
+        const necesitaTalla = tallaBtns.length > 0;
+        const necesitaColor = colorBtns.length > 0;
+        
+        if ((necesitaTalla && !tallaSeleccionada) || (necesitaColor && !colorSeleccionado)) {
+            if (variantError) variantError.style.display = 'block';
+            if (addToCartBtn) addToCartBtn.disabled = true;
+            return;
+        }
+        
+        if (variantError) variantError.style.display = 'none';
+        
+        // Buscar la variante correspondiente
+        const variante = variantes.find(v => {
+            const matchTalla = !necesitaTalla || v.talla_id == tallaSeleccionada;
+            const matchColor = !necesitaColor || v.color_id == colorSeleccionado;
+            return matchTalla && matchColor;
+        });
+        
+        if (variante) {
+            // Actualizar campo oculto
+            document.getElementById('varianteIdInput').value = variante.id;
+            
+            // Actualizar stock
+            const stock = variante.stock || 0;
+            if (qtyInput) {
+                qtyInput.max = stock;
+                if (parseInt(qtyInput.value) > stock) {
+                    qtyInput.value = Math.max(1, stock);
+                }
+            }
+            
+            // Actualizar indicador de stock
+            if (stockIndicator) {
+                let stockHTML = '';
+                if (stock > 10) {
+                    stockHTML = `<span class="stock-indicator available">
+                        <i class="bi bi-check-circle-fill"></i>
+                        En stock (${stock} disponibles)
+                    </span>`;
+                } else if (stock > 0) {
+                    stockHTML = `<span class="stock-indicator low">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        ¡Solo quedan ${stock} unidades!
+                    </span>`;
+                } else {
+                    stockHTML = `<span class="stock-indicator out">
+                        <i class="bi bi-x-circle-fill"></i>
+                        Agotado temporalmente
+                    </span>`;
+                }
+                stockIndicator.innerHTML = stockHTML;
+            }
+            
+            // Habilitar/deshabilitar botón
+            if (addToCartBtn) {
+                addToCartBtn.disabled = stock <= 0;
+            }
+        } else {
+            // No se encontró la variante
+            if (addToCartBtn) addToCartBtn.disabled = true;
+            if (stockIndicator) {
+                stockIndicator.innerHTML = `<span class="stock-indicator out">
+                    <i class="bi bi-x-circle-fill"></i>
+                    Combinación no disponible
+                </span>`;
+            }
+        }
+    }
+
+    // Validar formulario antes de enviar (solo para merch)
+    const addToCartForm = document.getElementById('addToCartForm');
+    if (addToCartForm && variantes.length > 0) {
+        addToCartForm.addEventListener('submit', function(e) {
+            const varianteId = document.getElementById('varianteIdInput').value;
+            if (!varianteId) {
+                e.preventDefault();
+                const variantError = document.getElementById('variantError');
+                if (variantError) {
+                    variantError.style.display = 'block';
+                    variantError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    }
 });
 </script>
 @endpush

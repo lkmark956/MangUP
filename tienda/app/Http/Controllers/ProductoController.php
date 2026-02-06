@@ -181,7 +181,7 @@ class ProductoController extends Controller
 
         // Si no se encontró, buscar en merch
         if (!$producto && (!$tipo || $tipo === 'merch')) {
-            $producto = Merch::with('categoria', 'imagenes')->find($id);
+            $producto = Merch::with(['categoria', 'imagenes', 'variantes.talla', 'variantes.color'])->find($id);
             if ($producto) {
                 $producto->tipo = 'merch';
             }

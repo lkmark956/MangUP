@@ -60,15 +60,46 @@ class CheckoutController extends Controller
         }
 
         $productos = $this->obtenerProductosDelCarrito($carrito);
+        
+        // Validar stock antes de crear la sesión de pago
+        foreach ($productos as $item) {
+            // Para Merch con variante, usar el stock de la variante
+            if ($item['tipo'] === 'merch' && isset($item['variante'])) {
+                $stockDisponible = $item['variante']->stock ?? 0;
+                $nombreProducto = $item['producto']->nombre . ' (' . 
+                    ($item['variante']->talla->nombre ?? '') . ' - ' . 
+                    ($item['variante']->color->nombre ?? '') . ')';
+            } else {
+                $stockDisponible = $item['producto']->stock ?? 0;
+                $nombreProducto = $item['producto']->nombre;
+            }
+            
+            if ($stockDisponible < $item['cantidad']) {
+                return response()->json([
+                    'error' => "No hay suficiente stock de '{$nombreProducto}'. Solo quedan {$stockDisponible} unidades."
+                ], 400);
+            }
+        }
+        
         $lineItems = [];
 
         foreach ($productos as $item) {
+            $nombreProducto = $item['producto']->nombre;
+            $descripcionProducto = ucfirst($item['tipo']) . ' - ' . ($item['producto']->categoria->nombre ?? 'Sin categoría');
+            
+            // Añadir información de variante a la descripción si existe
+            if ($item['tipo'] === 'merch' && isset($item['variante'])) {
+                $descripcionProducto .= ' | ' . 
+                    ($item['variante']->talla->nombre ?? '') . ' - ' . 
+                    ($item['variante']->color->nombre ?? '');
+            }
+            
             $lineItems[] = [
                 'price_data' => [
                     'currency' => config('stripe.currency', 'eur'),
                     'product_data' => [
-                        'name' => $item['producto']->nombre,
-                        'description' => ucfirst($item['tipo']) . ' - ' . ($item['producto']->categoria->nombre ?? 'Sin categoría'),
+                        'name' => $nombreProducto,
+                        'description' => $descripcionProducto,
                     ],
                     'unit_amount' => (int)($item['producto']->precio * 100),
                 ],
@@ -178,11 +209,20 @@ class CheckoutController extends Controller
             $producto = $this->obtenerProducto($item['id'], $item['tipo']);
             
             if ($producto) {
-                $productos[] = [
+                $itemData = [
                     'producto' => $producto,
                     'cantidad' => $item['cantidad'],
                     'tipo' => $item['tipo']
                 ];
+                
+                // Añadir variante si existe
+                if ($item['tipo'] === 'merch' && isset($item['variante_id'])) {
+                    $variante = \App\Models\MerchVariante::with(['talla', 'color'])->find($item['variante_id']);
+                    $itemData['variante'] = $variante;
+                    $itemData['variante_id'] = $item['variante_id'];
+                }
+                
+                $productos[] = $itemData;
             }
         }
 
@@ -280,10 +320,18 @@ class CheckoutController extends Controller
             };
 
             if ($productoType) {
+                $varianteDetalle = null;
+                if ($item['tipo'] === 'merch' && isset($item['variante'])) {
+                    $varianteDetalle = ($item['variante']->talla->nombre ?? '') . ' - ' . 
+                                      ($item['variante']->color->nombre ?? '');
+                }
+                
                 PedidoItem::create([
                     'pedido_id' => $pedido->id,
                     'producto_id' => $item['producto']->id,
                     'producto_type' => $productoType,
+                    'variante_id' => $item['variante_id'] ?? null,
+                    'variante_detalle' => $varianteDetalle,
                     'nombre_producto' => $item['producto']->nombre,
                     'precio_unitario' => $item['producto']->precio,
                     'cantidad' => $item['cantidad'],
@@ -291,6 +339,9 @@ class CheckoutController extends Controller
                 ]);
             }
         }
+
+        // Descontar el stock usando el método del modelo
+        $pedido->descontarStock();
 
         return $pedido;
     }

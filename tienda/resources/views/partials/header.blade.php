@@ -48,6 +48,12 @@
                             <i class="bi bi-chevron-down d-none d-lg-inline" style="font-size: 0.7rem;"></i>
                         </div>
                         <div class="user-dropdown-menu">
+                            @if(Auth::user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}" class="admin-link">
+                                    <i class="bi bi-speedometer2"></i>Panel de Administración
+                                </a>
+                                <hr>
+                            @endif
                             <a href="{{ route('cuenta.datos-personales') }}">
                                 <i class="bi bi-person"></i>Mi cuenta
                             </a>

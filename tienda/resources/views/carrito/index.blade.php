@@ -45,9 +45,26 @@
                                         • {{ $item['producto']->categoria->nombre }}
                                     @endif
                                 </p>
-                                <p class="cart-item-stock">
-                                    Stock disponible: <strong>{{ $item['producto']->stock }}</strong>
-                                </p>
+                                @if(isset($item['variante']))
+                                    <p class="cart-item-variant">
+                                        <span class="variant-label">
+                                            @if($item['variante']->talla)
+                                                <i class="bi bi-rulers"></i> {{ $item['variante']->talla->nombre }}
+                                            @endif
+                                            @if($item['variante']->talla && $item['variante']->color) • @endif
+                                            @if($item['variante']->color)
+                                                <i class="bi bi-palette-fill"></i> {{ $item['variante']->color->nombre }}
+                                            @endif
+                                        </span>
+                                    </p>
+                                    <p class="cart-item-stock">
+                                        Stock disponible: <strong>{{ $item['variante']->stock }}</strong>
+                                    </p>
+                                @else
+                                    <p class="cart-item-stock">
+                                        Stock disponible: <strong>{{ $item['producto']->stock }}</strong>
+                                    </p>
+                                @endif
                             </div>
 
                             <!-- Precio unitario -->
@@ -69,7 +86,8 @@
                                             <i class="bi bi-dash-lg"></i>
                                         </button>
                                         <input type="number" name="cantidad" class="qty-input" 
-                                               value="{{ $item['cantidad'] }}" min="1" max="{{ $item['producto']->stock }}"
+                                               value="{{ $item['cantidad'] }}" min="1" 
+                                               max="{{ isset($item['variante']) ? $item['variante']->stock : $item['producto']->stock }}"
                                                onchange="submitQtyForm(this)">
                                         <button type="button" class="qty-btn plus" 
                                                 onclick="incrementarQty(this)">

@@ -3,7 +3,7 @@
         'name' => 'escuela/sistema-gestion',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'cef04b7e888c339f62950fca409edab9ea001164',
+        'reference' => '694056dc2e0a4736811f28b4e127b87ee70ac450',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -106,7 +106,7 @@
         'escuela/sistema-gestion' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'cef04b7e888c339f62950fca409edab9ea001164',
+            'reference' => '694056dc2e0a4736811f28b4e127b87ee70ac450',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1111,6 +1111,15 @@
             'install_path' => __DIR__ . '/../staabm/side-effects-detector',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'stripe/stripe-php' => array(
+            'pretty_version' => 'v19.3.0',
+            'version' => '19.3.0.0',
+            'reference' => '462272ae7560ee29bb891763fd0967d5a77784e5',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../stripe/stripe-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'symfony/clock' => array(
             'pretty_version' => 'v8.0.0',

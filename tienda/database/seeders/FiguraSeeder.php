@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\Figura;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class FiguraSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('figuras')->delete();
         $figuras = [
             // Figuras con imágenes reales
             [
@@ -23,8 +26,8 @@ class FiguraSeeder extends Seeder
                 'nombre' => 'Figura Chainsaw Man - Denji',
                 'descripcion' => 'Figura de Denji en su forma de Chainsaw Man. Diseño detallado con las motosierras características. Material PVC premium, altura 22cm.',
                 'precio' => 52.99,
-                'stock' => 8,
-                'disponibilidad' => true,
+                'stock' => 0,
+                'disponibilidad' => false,
                 'categoria_figura_id' => 8 // Chainsaw Man
             ],
             [
@@ -47,7 +50,7 @@ class FiguraSeeder extends Seeder
                 'nombre' => 'Figura Hollow - Bleach',
                 'descripcion' => 'Impresionante figura de un Hollow de la serie Bleach. Diseño terrorífico con detalles en la máscara. Base incluida, altura 28cm.',
                 'precio' => 64.99,
-                'stock' => 6,
+                'stock' => 3,
                 'disponibilidad' => true,
                 'categoria_figura_id' => 9 // Bleach
             ],

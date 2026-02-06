@@ -155,7 +155,23 @@
 @push('scripts')
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    const stripe = Stripe('{{ config("stripe.key") }}');
+    @php
+        $stripeKey = config('stripe.key');
+        if (empty($stripeKey)) {
+            \Log::error('STRIPE_KEY no está configurada en el archivo .env');
+        }
+    @endphp
+    
+    const stripeKey = '{{ config("stripe.key") }}';
+    
+    if (!stripeKey || stripeKey === '') {
+        console.error('ERROR: STRIPE_KEY no está configurada');
+        document.getElementById('checkout-error').classList.remove('d-none');
+        document.getElementById('checkout-error').textContent = 'Error de configuración: La clave pública de Stripe (STRIPE_KEY) no está configurada. Por favor, contacta al administrador.';
+        document.getElementById('checkout-button').disabled = true;
+    }
+    
+    const stripe = Stripe(stripeKey);
     const checkoutButton = document.getElementById('checkout-button');
     const loadingDiv = document.getElementById('checkout-loading');
     const errorDiv = document.getElementById('checkout-error');

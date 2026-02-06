@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\Color;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ColorSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('colores')->delete();
         $colores = [
             ['nombre' => 'Negro', 'hex' => '#000000'],
             ['nombre' => 'Blanco', 'hex' => '#FFFFFF'],

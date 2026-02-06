@@ -15,7 +15,15 @@ class CheckoutController extends Controller
 {
     public function __construct()
     {
-        Stripe::setApiKey(config('stripe.secret'));
+        // Validar que las claves de Stripe estén configuradas
+        $stripeSecret = config('stripe.secret');
+        
+        if (empty($stripeSecret)) {
+            \Log::error('STRIPE_SECRET no está configurada en el archivo .env');
+            abort(500, 'Error de configuración: Las claves de Stripe no están configuradas. Por favor, configura STRIPE_KEY y STRIPE_SECRET en tu archivo .env');
+        }
+        
+        Stripe::setApiKey($stripeSecret);
     }
 
     /**
@@ -98,7 +106,19 @@ class CheckoutController extends Controller
                 'id' => $session->id, // @phpstan-ignore-line
                 'url' => $session->url // @phpstan-ignore-line
             ]);
+        } catch (\Stripe\Exception\AuthenticationException $e) {
+            \Log::error('Stripe Authentication Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error de autenticación con Stripe. Verifica que las claves STRIPE_KEY y STRIPE_SECRET estén correctamente configuradas en el archivo .env'
+            ], 500);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            \Log::error('Stripe API Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error de Stripe API: ' . $e->getMessage()
+            ], 500);
         } catch (\Exception $e) {
+            \Log::error('Error al crear sesión de pago: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             return response()->json([
                 'error' => 'Error al crear la sesión de pago: ' . $e->getMessage()
             ], 500);

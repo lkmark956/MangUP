@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\Merch;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MerchSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('merchs')->delete();
         $merchs = [
             // Solo los 5 productos que tienen imágenes reales
             [
@@ -43,7 +46,7 @@ class MerchSeeder extends Seeder
                 'nombre' => 'Poster Demon Slayer',
                 'descripcion' => 'Poster premium tamaño A2 (42x59.4cm) de Demon Slayer: Kimetsu no Yaiba. Papel de alta calidad 200g/m². Incluye los personajes principales.',
                 'precio' => 9.95,
-                'disponibilidad' => true,
+                'disponibilidad' => false,
                 'categoria_merch_id' => 4 // Posters
             ],
         ];

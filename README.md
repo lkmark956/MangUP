@@ -44,23 +44,37 @@ DB_USERNAME=root
 DB_PASSWORD=root
 ```
 
-### 5. Crear la base de datos
+### 5. Configurar Stripe
+**⚠️ IMPORTANTE:** Para que funcione el sistema de pagos, debes configurar tus claves de Stripe.
+
+1. Crea una cuenta en [Stripe](https://stripe.com)
+2. Obtén tus claves de prueba desde el [Dashboard de Stripe](https://dashboard.stripe.com/test/apikeys)
+3. Edita el archivo `.env` y añade tus claves:
+```env
+STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
+STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=
+```
+
+> **Nota:** Las claves que empiezan con `pk_test_` y `sk_test_` son para el entorno de pruebas (modo sandbox). En producción deberás usar las claves reales.
+
+### 6. Crear la base de datos
 En MySQL, crea la base de datos:
 ```sql
 CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 6. Ejecutar migraciones
+### 7. Ejecutar migraciones
 ```bash
 php artisan migrate
 ```
 
-### 7. Ejecutar seeders (datos de prueba)
+### 8. Ejecutar seeders (datos de prueba)
 ```bash
 php artisan db:seed
 ```
 
-### 8. Iniciar el servidor
+### 9. Iniciar el servidor
 ```bash
 php artisan serve
 ```
@@ -69,7 +83,126 @@ La aplicación estará disponible en: `http://localhost:8000`
 
 ---
 
-## 📁 Estructura del Proyecto
+## � Solución de Problemas (Troubleshooting)
+
+### ❌ "Se rompe al rellenar datos de pago con Stripe"
+
+Si el formulario de pago falla o da errores al intentar pagar, sigue estos pasos:
+
+#### 1️⃣ Verificar que las claves de Stripe estén configuradas correctamente
+
+Abre el archivo `.env` y verifica que las claves de Stripe estén presentes:
+```env
+STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
+STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Importante:** 
+- Las claves **NO** deben tener espacios al inicio ni al final
+- La `STRIPE_KEY` debe empezar con `pk_test_` (o `pk_live_` en producción)
+- La `STRIPE_SECRET` debe empezar con `sk_test_` (o `sk_live_` en producción)
+
+#### 2️⃣ Limpiar caché de configuración
+
+Laravel puede estar usando configuración antigua en caché:
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+```
+
+#### 3️⃣ Verificar que APP_KEY esté generada
+
+Si ves errores de encriptación o sesión, necesitas generar la clave de la aplicación:
+```bash
+php artisan key:generate
+```
+
+Luego reinicia el servidor:
+```bash
+php artisan serve
+```
+
+#### 4️⃣ Verificar permisos de storage
+
+En Windows, normalmente no hay problemas, pero en Linux/Mac:
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+#### 5️⃣ Verificar que la base de datos esté correctamente configurada
+
+```bash
+# Ejecutar las migraciones
+php artisan migrate
+
+# Si ya están migradas, verificar
+php artisan migrate:status
+```
+
+#### 6️⃣ Verificar que las claves de Stripe sean válidas
+
+Puedes probar las claves directamente en el Dashboard de Stripe:
+- Ve a https://dashboard.stripe.com/test/apikeys
+- Copia las claves de nuevo y reemplázalas en el `.env`
+- **Asegúrate de estar en modo "Test" (no "Live")**
+
+#### 7️⃣ Ver los logs de error
+
+Si sigue fallando, revisa los logs de Laravel para ver el error exacto:
+```bash
+# En Windows
+type storage\logs\laravel.log | more
+
+# En Linux/Mac
+tail -f storage/logs/laravel.log
+```
+
+O abre el archivo: `tienda/storage/logs/laravel.log`
+
+### ❌ "No se cargan los estilos CSS"
+
+Si la página se ve sin estilos:
+```bash
+npm install
+npm run dev
+```
+
+### ❌ "Error de conexión a la base de datos"
+
+Verifica que:
+1. MySQL esté corriendo
+2. La base de datos `mangup_db` exista
+3. Las credenciales en `.env` sean correctas:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mangup_db
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+### 📝 Checklist completo para configurar el proyecto
+
+Si acabas de clonar el proyecto, asegúrate de hacer TODO esto:
+
+- [ ] `composer install`
+- [ ] `npm install`
+- [ ] `cp .env.example .env`
+- [ ] `php artisan key:generate`
+- [ ] Configurar `.env` (base de datos + Stripe)
+- [ ] Crear base de datos en MySQL
+- [ ] `php artisan migrate`
+- [ ] `php artisan db:seed`
+- [ ] `php artisan config:clear`
+- [ ] `npm run dev` (o `npm run build` para producción)
+- [ ] `php artisan serve`
+
+---
+
+## �📁 Estructura del Proyecto
 
 ```
 tienda/
@@ -131,48 +264,6 @@ colores (1) ───────────────< (N) merch_variantes
 mangas/figuras/merchs (1) ─< (N) imagenes (polimórfica)
 ```
 
----
-
-## 👥 Asignación de Tareas por Compañero
-
-### ⚫ Marco - Panel de Administración + Carrito y Gestión de Stock
-
-**Archivos a crear/modificar:**
-- `app/Http/Controllers/AdminController.php`
-- `app/Http/Controllers/CarritoController.php`
-- `resources/views/admin/` - Vistas del panel
-- `resources/views/carrito/` - Vistas del carrito
-- `routes/admin.php` - Rutas protegidas del admin
-- `app/Models/Carrito.php` (si es necesario)
-
-**Tareas:**
-
-1. **Sistema de Autenticación Admin:**
-   - Verificar roles de usuario (admin vs cliente)
-   - Middleware para proteger rutas de admin
-
-2. **Panel de Administración:**
-   - Dashboard con estadísticas (productos totales, stock bajo, etc.)
-   - Gestión de productos (CRUD)
-   - Gestión de categorías (CRUD)
-   - Gestión de variantes de merch
-   - Ver pedidos (estructura lista)
-
-3. **Gestión de Stock:**
-   - Vista de productos con stock bajo (< 5 unidades)
-   - Actualizar stock de productos
-   - Alertas de stock agotado
-   - Restar stock automáticamente al comprar
-
-4. **Sistema de Carrito:**
-   - Almacenar carrito en sesión/base de datos
-   - Añadir productos al carrito
-   - Eliminar productos del carrito
-   - Actualizar cantidades
-   - Calcular totales (subtotal, impuestos, total)
-   - Vista del carrito
-   - Validar stock disponible antes de añadir
-
 **Rutas Admin (ejemplos):**
 ```php
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
@@ -190,135 +281,6 @@ Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])-
 Route::patch('/carrito/actualizar/{id}', [CarritoController::class, 'actualizar'])->name('carrito.actualizar');
 Route::get('/carrito', [CarritoController::class, 'ver'])->name('carrito.ver');
 ```
-
----
-
-### 🔵 LORENZO - TODOS LOS SEEDERS (Base de Datos)
-
-**Archivos a crear/modificar:**
-- `database/seeders/CategoriaMangaSeeder.php`
-- `database/seeders/CategoriaFiguraSeeder.php`
-- `database/seeders/CategoriaMerchSeeder.php`
-- `database/seeders/TallaSeeder.php`
-- `database/seeders/ColorSeeder.php`
-- `database/seeders/MangaSeeder.php`
-- `database/seeders/FiguraSeeder.php`
-- `database/seeders/MerchSeeder.php`
-- `database/seeders/MerchVarianteSeeder.php`
-
-**Tareas:**
-
-1. **Categorías de Manga** (10 géneros):
-   - Acción, Romance, Terror, Fantasía, Comedia, Aventura, Drama, Ciencia Ficción, Misterio, Deportes
-
-2. **Categorías de Figuras** (7 series):
-   - One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia, Attack on Titan, Jujutsu Kaisen
-
-3. **Categorías de Merch** (6 tipos):
-   - Camisetas, Sudaderas, Tazas, Posters, Llaveros, Mochilas
-
-4. **Tallas** (6):
-   - XS, S, M, L, XL, XXL
-
-5. **Colores** (10):
-   - Negro (#000000), Blanco (#FFFFFF), Gris (#808080), Rojo (#FF0000), Azul (#0000FF), Verde (#008000), Amarillo (#FFFF00), Rosa (#FFC0CB), Naranja (#FFA500), Morado (#800080)
-
-6. **Mangas** (mínimo 15 con todos los campos: nombre, descripcion, precio, stock, autor, editorial, fecha_publicacion, numero_paginas, isbn, numero_tomo):
-   - One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia, Attack on Titan, Death Note, Fullmetal Alchemist, Spy x Family, Chainsaw Man, Jujutsu Kaisen, Sailor Moon, Fruits Basket, Junji Ito Collection, etc.
-
-7. **Figuras** (mínimo 10 con: nombre, descripcion, precio, stock):
-   - Figuras de personajes principales de las series
-
-8. **Merch** (mínimo 10 productos: camisetas, sudaderas, tazas, posters, etc.)
-
-9. **Variantes de Merch** (combinaciones de talla/color/stock para cada merch)
-
-**Modificar `DatabaseSeeder.php` para ejecutar todos los seeders en orden:**
-```php
-public function run(): void
-{
-    $this->call([
-        CategoriaMangaSeeder::class,
-        CategoriaFiguraSeeder::class,
-        CategoriaMerchSeeder::class,
-        TallaSeeder::class,
-        ColorSeeder::class,
-        MangaSeeder::class,
-        FiguraSeeder::class,
-        MerchSeeder::class,
-        MerchVarianteSeeder::class,
-    ]);
-}
-```
-
----
-
-### 🟢 MARIO - Controladores y Rutas
-
-**Archivos a crear/modificar:**
-- `app/Http/Controllers/ProductoController.php`
-- `app/Http/Controllers/CategoriaController.php`
-- `routes/web.php`
-
-**Tareas:**
-1. Crear controlador **ProductoController** con métodos:
-   - `index()` - Listar todos los productos
-   - `show($id)` - Mostrar detalle de un producto
-   - `porCategoria($id)` - Filtrar productos por categoría
-
-2. Crear controlador **CategoriaController** con métodos:
-   - `index()` - Listar todas las categorías
-
-3. Definir rutas en `routes/web.php`:
-   - `GET /` → Página principal con todos los productos
-   - `GET /productos` → Listado de productos
-   - `GET /productos/{id}` → Detalle del producto
-   - `GET /categorias/{id}/productos` → Productos por categoría
-   - `GET /categorias` → Listado de categorías
-
-**Ejemplo de ruta:**
-```php
-Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
-Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
-Route::get('/categorias/{id}/productos', [ProductoController::class, 'porCategoria'])->name('productos.categoria');
-```
-
----
-
-### 🟣 LUIS - Vistas y Sistema de Filtros
-
-**Archivos a crear/modificar:**
-- `resources/views/productos/index.blade.php` - Listado de productos
-- `resources/views/productos/show.blade.php` - Detalle del producto
-- `resources/views/partials/filtros.blade.php` - Panel de filtros
-- `resources/views/partials/card-producto.blade.php` - Tarjeta reutilizable
-- `resources/css/custom.css` - Estilos personalizados
-
-**Tareas:**
-1. Crear vista **index.blade.php** con:
-   - Grid de productos con tarjetas
-   - Barra de filtros (por categoría, precio, disponibilidad)
-   - Búsqueda por nombre
-
-2. Crear vista **show.blade.php** con:
-   - Imagen principal y galería
-   - Nombre, descripción, precio
-   - Stock y disponibilidad
-   - Botón "Añadir al carrito" (solo estructura HTML)
-
-3. Crear componente **card-producto.blade.php**:
-   - Tarjeta reutilizable con imagen, nombre, precio
-   - Botón de detalles
-
-4. Crear panel de **filtros.blade.php**:
-   - Filtro por categoría (checkboxes)
-   - Filtro por rango de precio (slider)
-   - Botón "Filtrar"
-
-5. Añadir estilos CSS personalizados para:
-   - Grid responsivo
-   - Cards atractivas
-   - Filtros funcionales
 
 ---
 

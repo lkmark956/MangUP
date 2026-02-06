@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\Manga;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MangaSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('mangas')->delete();
         $mangas = [
             // Jujutsu Kaisen - Tomos disponibles con imágenes reales
             [
@@ -29,8 +32,8 @@ class MangaSeeder extends Seeder
                 'nombre' => 'Jujutsu Kaisen Vol. 4',
                 'descripcion' => 'Yuji Itadori continúa su entrenamiento en la Escuela de Hechicería de Tokio. Las maldiciones se vuelven más poderosas y los hechiceros deben prepararse para lo peor.',
                 'precio' => 8.95,
-                'stock' => 18,
-                'disponibilidad' => true,
+                'stock' => 0,
+                'disponibilidad' => false,
                 'autor' => 'Gege Akutami',
                 'editorial' => 'Norma Editorial',
                 'fecha_publicacion' => '2019-03-04',
@@ -43,7 +46,7 @@ class MangaSeeder extends Seeder
                 'nombre' => 'Jujutsu Kaisen Vol. 22',
                 'descripcion' => 'El arco de Shibuya llega a su clímax. Los hechiceros luchan contra las maldiciones más poderosas mientras el destino del mundo pende de un hilo.',
                 'precio' => 8.95,
-                'stock' => 30,
+                'stock' => 5,
                 'disponibilidad' => true,
                 'autor' => 'Gege Akutami',
                 'editorial' => 'Norma Editorial',

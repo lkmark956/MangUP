@@ -30,10 +30,10 @@ class ProductoController extends Controller
         $mostrarFigura = empty($tipoFiltro) || in_array('figura', $tipoFiltro);
         $mostrarMerch = empty($tipoFiltro) || in_array('merch', $tipoFiltro);
         
-        // Obtener todos los productos de las diferentes tablas
-        $mangasQuery = Manga::query();
-        $figurasQuery = Figura::query();
-        $merchsQuery = Merch::query();
+        // Obtener todos los productos de las diferentes tablas con eager loading de imágenes
+        $mangasQuery = Manga::with('imagenes');
+        $figurasQuery = Figura::with('imagenes');
+        $merchsQuery = Merch::with('imagenes');
 
         // Aplicar filtro de búsqueda
         if ($request->filled('buscar')) {
@@ -61,22 +61,55 @@ class ProductoController extends Controller
         if ($request->filled('disponibilidad')) {
             $disponibilidad = $request->disponibilidad;
             
-            if (in_array('en_stock', $disponibilidad)) {
-                $mangasQuery->where('stock', '>', 10);
-                $figurasQuery->where('stock', '>', 10);
-                $merchsQuery->where('stock', '>', 10);
+            // Para mangas y figuras basado en stock
+            if ($mostrarManga) {
+                $mangasQuery->where(function($q) use ($disponibilidad) {
+                    foreach ($disponibilidad as $index => $disp) {
+                        $method = $index === 0 ? 'where' : 'orWhere';
+                        
+                        if ($disp === 'en_stock') {
+                            $q->$method('stock', '>', 10);
+                        } elseif ($disp === 'ultimas_unidades') {
+                            $q->$method(function($subQ) {
+                                $subQ->whereBetween('stock', [1, 10]);
+                            });
+                        } elseif ($disp === 'agotado') {
+                            $q->$method('stock', '<=', 0);
+                        }
+                    }
+                });
             }
             
-            if (in_array('ultimas_unidades', $disponibilidad)) {
-                $mangasQuery->orWhereBetween('stock', [1, 10]);
-                $figurasQuery->orWhereBetween('stock', [1, 10]);
-                $merchsQuery->orWhereBetween('stock', [1, 10]);
+            if ($mostrarFigura) {
+                $figurasQuery->where(function($q) use ($disponibilidad) {
+                    foreach ($disponibilidad as $index => $disp) {
+                        $method = $index === 0 ? 'where' : 'orWhere';
+                        
+                        if ($disp === 'en_stock') {
+                            $q->$method('stock', '>', 10);
+                        } elseif ($disp === 'ultimas_unidades') {
+                            $q->$method(function($subQ) {
+                                $subQ->whereBetween('stock', [1, 10]);
+                            });
+                        } elseif ($disp === 'agotado') {
+                            $q->$method('stock', '<=', 0);
+                        }
+                    }
+                });
             }
             
-            if (in_array('agotado', $disponibilidad)) {
-                $mangasQuery->orWhere('stock', '<=', 0);
-                $figurasQuery->orWhere('stock', '<=', 0);
-                $merchsQuery->orWhere('stock', '<=', 0);
+            // Para merchs basado en disponibilidad booleana
+            if ($mostrarMerch) {
+                $hasEnStock = in_array('en_stock', $disponibilidad) || in_array('ultimas_unidades', $disponibilidad);
+                $hasAgotado = in_array('agotado', $disponibilidad);
+                
+                if ($hasEnStock && $hasAgotado) {
+                    // Mostrar todos
+                } elseif ($hasEnStock) {
+                    $merchsQuery->where('disponibilidad', true);
+                } elseif ($hasAgotado) {
+                    $merchsQuery->where('disponibilidad', false);
+                }
             }
         }
 
@@ -88,6 +121,7 @@ class ProductoController extends Controller
         if ($mostrarManga) {
             $mangas = $mangasQuery->get()->map(function ($item) {
                 $item->tipo = 'manga';
+                $item->unique_key = 'manga-' . $item->id;
                 return $item;
             });
         }
@@ -95,6 +129,7 @@ class ProductoController extends Controller
         if ($mostrarFigura) {
             $figuras = $figurasQuery->get()->map(function ($item) {
                 $item->tipo = 'figura';
+                $item->unique_key = 'figura-' . $item->id;
                 return $item;
             });
         }
@@ -102,12 +137,13 @@ class ProductoController extends Controller
         if ($mostrarMerch) {
             $merchs = $merchsQuery->get()->map(function ($item) {
                 $item->tipo = 'merch';
+                $item->unique_key = 'merch-' . $item->id;
                 return $item;
             });
         }
 
-        // Combinar todos los productos
-        $todosProductos = $mangas->concat($figuras)->concat($merchs);
+        // Combinar todos los productos y eliminar duplicados por unique_key
+        $todosProductos = $mangas->concat($figuras)->concat($merchs)->unique('unique_key')->values();
 
         // Aplicar ordenamiento
         if ($request->filled('ordenar')) {
@@ -151,7 +187,12 @@ class ProductoController extends Controller
             ->concat($categoriasFigura)
             ->concat($categoriasMerch);
 
-        return view('productos.index', compact('productos', 'categorias'));
+        // Obtener conteos totales para los filtros
+        $mangasCount = Manga::count();
+        $figurasCount = Figura::count();
+        $merchsCount = Merch::count();
+
+        return view('productos.index', compact('productos', 'categorias', 'mangasCount', 'figurasCount', 'merchsCount'));
     }
 
     /**

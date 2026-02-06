@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\CategoriaManga;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CategoriaMangaSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('categorias_manga')->delete();
         $categorias = [
             ['nombre' => 'Acción', 'descripcion' => 'Manga lleno de peleas y emoción'],
             ['nombre' => 'Romance', 'descripcion' => 'Historias de amor y relaciones'],

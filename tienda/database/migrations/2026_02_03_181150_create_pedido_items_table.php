@@ -14,15 +14,12 @@ return new class extends Migration
         Schema::create('pedido_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pedido_id')->constrained('pedidos')->onDelete('cascade');
-            $table->unsignedBigInteger('producto_id');
-            $table->string('producto_type');
+            $table->morphs('producto'); // producto_id y producto_type
             $table->string('nombre_producto');
             $table->decimal('precio_unitario', 10, 2);
             $table->integer('cantidad');
             $table->decimal('subtotal', 10, 2);
             $table->timestamps();
-
-            $table->index(['producto_id', 'producto_type']);
         });
     }
 

@@ -7,11 +7,14 @@ use App\Models\Manga;
 use App\Models\Figura;
 use App\Models\Merch;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ImagenSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('imagenes')->delete();
         // Imágenes de Mangas - Coincidiendo con archivos reales en productos/mangas/
         $imagenesManga = [
             ['id' => 1, 'ruta' => 'productos/mangas/JJK-0.png'],        // Jujutsu Kaisen Vol. 0

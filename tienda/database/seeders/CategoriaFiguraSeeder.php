@@ -4,11 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\CategoriaFigura;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CategoriaFiguraSeeder extends Seeder
 {
     public function run(): void
     {
+        // Limpiar tabla antes de sembrar para evitar duplicados
+        DB::table('categorias_figura')->delete();
         $categorias = [
             ['nombre' => 'One Piece'],        // ID 1
             ['nombre' => 'Naruto'],           // ID 2

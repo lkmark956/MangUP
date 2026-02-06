@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('stripe_session_id')->unique();
             $table->string('stripe_payment_intent_id')->nullable();
             $table->string('numero_pedido')->unique();
-            $table->enum('estado', ['procesando', 'pagado', 'enviado', 'entregado', 'cancelado'])->default('procesando');
+            $table->enum('estado', ['pendiente', 'procesando', 'enviado', 'entregado', 'cancelado'])->default('procesando');
             $table->decimal('subtotal', 10, 2);
             $table->decimal('impuesto', 10, 2);
             $table->decimal('total', 10, 2);

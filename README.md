@@ -55,6 +55,11 @@ DB_PASSWORD=
 STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
 STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
 STRIPE_WEBHOOK_SECRET=
+
+STRIPE_KEY=pk_test_51SwlqZJGgdOsjWc0lbv1UUT42nj51OCoiV0dDqhbCOtiA7n0Q71gpe2mYd2O80q1VoZ8c88qmlt5s1AsPirUHNmi00y5KdFbLb
+STRIPE_SECRET=sk_test_51SwlqZJGgdOsjWc0fcWJ53BwHnFlYRO3oV1zyv4iS9X5cqCwYP0WGEbpK5saTweq9dgNAluXe2xAAtu8JScI2zA100htbR04LH
+STRIPE_WEBHOOK_SECRET=
+
 ```
 
 > **Nota:** Las claves que empiezan con `pk_test_` y `sk_test_` son para el entorno de pruebas (modo sandbox). En producción deberás usar las claves reales.

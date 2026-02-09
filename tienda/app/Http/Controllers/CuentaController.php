@@ -28,11 +28,28 @@ class CuentaController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'foto_perfil' => ['nullable', 'image', 'max:2048'],
         ], [
             'name.required' => 'El nombre es obligatorio',
             'email.required' => 'El email es obligatorio',
             'email.unique' => 'Este email ya está registrado',
+            'foto_perfil.image' => 'El archivo debe ser una imagen válida (jpg, jpeg, png, gif)',
+            'foto_perfil.max' => 'La imagen no puede pesar más de 2MB',
         ]);
+
+        // Manejar la subida de la foto de perfil
+        if ($request->hasFile('foto_perfil')) {
+            // Eliminar la foto anterior si existe
+            if ($user->foto_perfil && file_exists(public_path($user->foto_perfil))) {
+                unlink(public_path($user->foto_perfil));
+            }
+
+            // Guardar la nueva foto
+            $file = $request->file('foto_perfil');
+            $filename = 'perfil_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/perfiles'), $filename);
+            $validated['foto_perfil'] = 'storage/perfiles/' . $filename;
+        }
 
         $user->update($validated);
 

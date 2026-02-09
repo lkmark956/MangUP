@@ -157,8 +157,11 @@
                                 </button>
                             </div>
                             <small class="form-text text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i><strong>Requisitos de la contraseña:</strong>
                                 <ul class="mb-0 ps-3">
                                     <li>Mínimo 8 caracteres</li>
+                                    <li>Al menos una mayúscula</li>
+                                    <li>Al menos 3 números</li>
                                     <li>Debe ser diferente a la contraseña actual</li>
                                 </ul>
                             </small>

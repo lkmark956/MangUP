@@ -27,7 +27,14 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[A-Z]/',
+                'regex:/[0-9].*[0-9].*[0-9]/',
+            ],
         ], [
             'name.required' => 'El nombre es obligatorio',
             'name.max' => 'El nombre no puede tener más de 255 caracteres',
@@ -36,6 +43,7 @@ class RegisterController extends Controller
             'email.unique' => 'Este email ya está registrado',
             'password.required' => 'La contraseña es obligatoria',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres',
+            'password.regex' => 'La contraseña debe contener al menos una mayúscula y 3 números',
             'password.confirmed' => 'Las contraseñas no coinciden',
         ]);
 

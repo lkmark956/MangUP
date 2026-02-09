@@ -53,13 +53,16 @@ class CuentaController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'different:password_actual'
+                'different:password_actual',
+                'regex:/[A-Z]/',
+                'regex:/[0-9].*[0-9].*[0-9]/',
             ],
         ], [
             'password_actual.required' => 'Debes ingresar tu contraseña actual',
             'password_nueva.required' => 'Debes ingresar una nueva contraseña',
             'password_nueva.min' => 'La contraseña debe tener al menos 8 caracteres',
             'password_nueva.different' => 'La nueva contraseña debe ser diferente a la actual',
+            'password_nueva.regex' => 'La contraseña debe contener al menos una mayúscula y 3 números',
             'password_nueva.confirmed' => 'Las contraseñas no coinciden',
         ]);
 

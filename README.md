@@ -52,9 +52,6 @@ DB_PASSWORD=
 2. Obtén tus claves de prueba desde el [Dashboard de Stripe](https://dashboard.stripe.com/test/apikeys)
 3. Edita el archivo `.env` y añade tus claves:
 ```env
-STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
-STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
-STRIPE_WEBHOOK_SECRET=
 
 STRIPE_KEY=pk_test_51SwlqZJGgdOsjWc0lbv1UUT42nj51OCoiV0dDqhbCOtiA7n0Q71gpe2mYd2O80q1VoZ8c88qmlt5s1AsPirUHNmi00y5KdFbLb
 STRIPE_SECRET=sk_test_51SwlqZJGgdOsjWc0fcWJ53BwHnFlYRO3oV1zyv4iS9X5cqCwYP0WGEbpK5saTweq9dgNAluXe2xAAtu8JScI2zA100htbR04LH

@@ -45,7 +45,8 @@ class CarritoController extends Controller
         $request->validate([
             'id' => 'required|integer',
             'tipo' => 'required|in:manga,figura,merch',
-            'cantidad' => 'required|integer|min:1'
+            'cantidad' => 'required|integer|min:1',
+            'variante_id' => 'nullable|integer'
         ]);
 
         $producto = $this->obtenerProducto($request->id, $request->tipo);
@@ -54,20 +55,44 @@ class CarritoController extends Controller
             return back()->with('error', 'Producto no encontrado');
         }
 
-        if ($producto->stock <= 0) {
+        // Para Merch, obtener el stock de la variante específica
+        if ($request->tipo === 'merch' && $request->variante_id) {
+            $variante = \App\Models\MerchVariante::find($request->variante_id);
+            if (!$variante) {
+                return back()->with('error', 'Variante no encontrada');
+            }
+            $stockDisponible = $variante->stock ?? 0;
+        } else {
+            $stockDisponible = $producto->stock ?? 0;
+        }
+        
+        if ($stockDisponible <= 0) {
             return back()->with('error', 'Producto agotado');
         }
 
         $carrito = session()->get('carrito', []);
-        $clave = "{$request->tipo}_{$request->id}";
+        // Para Merch con variante, incluir variante_id en la clave
+        $clave = $request->tipo === 'merch' && $request->variante_id 
+            ? "{$request->tipo}_{$request->id}_{$request->variante_id}"
+            : "{$request->tipo}_{$request->id}";
+        
+        // Calcular la cantidad total que se tendría en el carrito
+        $cantidadActual = $carrito[$clave]['cantidad'] ?? 0;
+        $cantidadTotal = $cantidadActual + $request->cantidad;
+        
+        // Validar que no exceda el stock disponible
+        if ($cantidadTotal > $stockDisponible) {
+            return back()->with('error', "No hay suficiente stock. Solo hay {$stockDisponible} unidades disponibles.");
+        }
 
         if (isset($carrito[$clave])) {
-            $carrito[$clave]['cantidad'] += $request->cantidad;
+            $carrito[$clave]['cantidad'] = $cantidadTotal;
         } else {
             $carrito[$clave] = [
                 'id' => $request->id,
                 'tipo' => $request->tipo,
-                'cantidad' => $request->cantidad
+                'cantidad' => $request->cantidad,
+                'variante_id' => $request->variante_id ?? null
             ];
         }
 
@@ -86,15 +111,32 @@ class CarritoController extends Controller
         ]);
 
         $carrito = session()->get('carrito', []);
-        $clave = "{$tipo}_{$id}";
+        
+        // Buscar la clave correcta (puede incluir variante_id)
+        $clave = null;
+        foreach ($carrito as $key => $item) {
+            if (str_starts_with($key, "{$tipo}_{$id}")) {
+                $clave = $key;
+                break;
+            }
+        }
 
-        if (!isset($carrito[$clave])) {
+        if (!$clave || !isset($carrito[$clave])) {
             return back()->with('error', 'Producto no encontrado en el carrito');
         }
 
         $producto = $this->obtenerProducto($id, $tipo);
+        $varianteId = $carrito[$clave]['variante_id'] ?? null;
         
-        if ($request->cantidad > $producto->stock) {
+        // Obtener el stock correcto
+        if ($tipo === 'merch' && $varianteId) {
+            $variante = \App\Models\MerchVariante::find($varianteId);
+            $stockDisponible = $variante ? $variante->stock : 0;
+        } else {
+            $stockDisponible = $producto->stock ?? 0;
+        }
+        
+        if ($request->cantidad > $stockDisponible) {
             return back()->with('error', 'No hay suficiente stock disponible');
         }
 
@@ -110,14 +152,23 @@ class CarritoController extends Controller
     public function eliminar($tipo, $id)
     {
         $carrito = session()->get('carrito', []);
-        $clave = "{$tipo}_{$id}";
-
-        if (isset($carrito[$clave])) {
-            unset($carrito[$clave]);
-            session()->put('carrito', $carrito);
+        
+        // Buscar la clave correcta (puede incluir variante_id)
+        $clave = null;
+        foreach ($carrito as $key => $item) {
+            if (str_starts_with($key, "{$tipo}_{$id}")) {
+                $clave = $key;
+                break;
+            }
         }
 
-        return back()->with('success', 'Producto eliminado del carrito');
+        if ($clave && isset($carrito[$clave])) {
+            unset($carrito[$clave]);
+            session()->put('carrito', $carrito);
+            return back()->with('success', 'Producto eliminado del carrito');
+        }
+
+        return back()->with('error', 'Producto no encontrado en el carrito');
     }
 
     /**
@@ -140,11 +191,19 @@ class CarritoController extends Controller
             $producto = $this->obtenerProducto($item['id'], $item['tipo']);
             
             if ($producto) {
-                $productos[] = [
+                $itemData = [
                     'producto' => $producto,
                     'cantidad' => $item['cantidad'],
                     'tipo' => $item['tipo']
                 ];
+                
+                // Añadir variante si existe
+                if ($item['tipo'] === 'merch' && isset($item['variante_id'])) {
+                    $variante = \App\Models\MerchVariante::with(['talla', 'color'])->find($item['variante_id']);
+                    $itemData['variante'] = $variante;
+                }
+                
+                $productos[] = $itemData;
             }
         }
 

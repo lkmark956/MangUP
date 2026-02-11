@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CuentaController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -58,7 +59,12 @@ Route::get('/', function () {
         return $item;
     });
     
-    return view('welcome', compact('productosDestacados', 'ultimosMangas', 'figurasDestacadas'));
+    // Obtener conteos totales para los filtros
+    $mangasCount = Manga::count();
+    $figurasCount = Figura::count();
+    $merchsCount = Merch::count();
+    
+    return view('welcome', compact('productosDestacados', 'ultimosMangas', 'figurasDestacadas', 'mangasCount', 'figurasCount', 'merchsCount'));
 })->name('home');
 
 // Rutas de productos (públicas)
@@ -93,7 +99,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/mi-cuenta/cambio-password', [CuentaController::class, 'cambiarPassword'])->name('cuenta.actualizar-password');
     
     // Mis Pedidos
-    Route::get('/mi-cuenta/pedidos', [CuentaController::class, 'misPedidos'])->name('cuenta.pedidos');
+    Route::get('/mi-cuenta/pedidos', [PedidoController::class, 'index'])->name('cuenta.pedidos');
+    Route::get('/mi-cuenta/pedidos/{id}', [PedidoController::class, 'show'])->name('cuenta.pedidos.show');
     
     // Direcciones
     Route::get('/mi-cuenta/direcciones', [CuentaController::class, 'direcciones'])->name('cuenta.direcciones');

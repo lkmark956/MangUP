@@ -10,6 +10,7 @@
 - Composer
 - MySQL >= 8.0
 - Node.js >= 18 (para compilar assets)
+- Extensiones PHP requeridas: `openssl`, `pdo_mysql`, `mysqli`, `mbstring`, `curl`, `fileinfo`
 
 ---
 
@@ -41,26 +42,47 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=mangup_db
 DB_USERNAME=root
-DB_PASSWORD=root
+DB_PASSWORD=
 ```
 
-### 5. Crear la base de datos
+### 5. Configurar Stripe
+**⚠️ IMPORTANTE:** Para que funcione el sistema de pagos, debes configurar tus claves de Stripe.
+
+1. Crea una cuenta en [Stripe](https://stripe.com)
+2. Obtén tus claves de prueba desde el [Dashboard de Stripe](https://dashboard.stripe.com/test/apikeys)
+3. Edita el archivo `.env` y añade tus claves:
+```env
+STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
+STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=
+```
+
+> **Nota:** Las claves que empiezan con `pk_test_` y `sk_test_` son para el entorno de pruebas (modo sandbox). En producción deberás usar las claves reales.
+
+### 6. Crear la base de datos
 En MySQL, crea la base de datos:
 ```sql
 CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 6. Ejecutar migraciones
+### 7. Ejecutar migraciones
 ```bash
 php artisan migrate
 ```
 
-### 7. Ejecutar seeders (datos de prueba)
+### 8. Ejecutar seeders (datos de prueba)
 ```bash
 php artisan db:seed
 ```
 
-### 8. Iniciar el servidor
+### 9. Iniciar el servidor
+### 6. Ejecutar migraciones y seeders
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+### 7. Iniciar el servidor
 ```bash
 php artisan serve
 ```
@@ -69,33 +91,175 @@ La aplicación estará disponible en: `http://localhost:8000`
 
 ---
 
+## � Solución de Problemas (Troubleshooting)
+
+### ❌ "Se rompe al rellenar datos de pago con Stripe"
+
+Si el formulario de pago falla o da errores al intentar pagar, sigue estos pasos:
+
+#### 1️⃣ Verificar que las claves de Stripe estén configuradas correctamente
+
+Abre el archivo `.env` y verifica que las claves de Stripe estén presentes:
+```env
+STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
+STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Importante:** 
+- Las claves **NO** deben tener espacios al inicio ni al final
+- La `STRIPE_KEY` debe empezar con `pk_test_` (o `pk_live_` en producción)
+- La `STRIPE_SECRET` debe empezar con `sk_test_` (o `sk_live_` en producción)
+
+#### 2️⃣ Limpiar caché de configuración
+
+Laravel puede estar usando configuración antigua en caché:
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+```
+
+#### 3️⃣ Verificar que APP_KEY esté generada
+
+Si ves errores de encriptación o sesión, necesitas generar la clave de la aplicación:
+```bash
+php artisan key:generate
+```
+
+Luego reinicia el servidor:
+```bash
+php artisan serve
+```
+
+#### 4️⃣ Verificar permisos de storage
+
+En Windows, normalmente no hay problemas, pero en Linux/Mac:
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+#### 5️⃣ Verificar que la base de datos esté correctamente configurada
+
+```bash
+# Ejecutar las migraciones
+php artisan migrate
+
+# Si ya están migradas, verificar
+php artisan migrate:status
+```
+
+#### 6️⃣ Verificar que las claves de Stripe sean válidas
+
+Puedes probar las claves directamente en el Dashboard de Stripe:
+- Ve a https://dashboard.stripe.com/test/apikeys
+- Copia las claves de nuevo y reemplázalas en el `.env`
+- **Asegúrate de estar en modo "Test" (no "Live")**
+
+#### 7️⃣ Ver los logs de error
+
+Si sigue fallando, revisa los logs de Laravel para ver el error exacto:
+```bash
+# En Windows
+type storage\logs\laravel.log | more
+
+# En Linux/Mac
+tail -f storage/logs/laravel.log
+```
+
+O abre el archivo: `tienda/storage/logs/laravel.log`
+
+### ❌ "No se cargan los estilos CSS"
+
+Si la página se ve sin estilos:
+```bash
+npm install
+npm run dev
+```
+
+### ❌ "Error de conexión a la base de datos"
+
+Verifica que:
+1. MySQL esté corriendo
+2. La base de datos `mangup_db` exista
+3. Las credenciales en `.env` sean correctas:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mangup_db
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+### 📝 Checklist completo para configurar el proyecto
+
+Si acabas de clonar el proyecto, asegúrate de hacer TODO esto:
+
+- [ ] `composer install`
+- [ ] `npm install`
+- [ ] `cp .env.example .env`
+- [ ] `php artisan key:generate`
+- [ ] Configurar `.env` (base de datos + Stripe)
+- [ ] Crear base de datos en MySQL
+- [ ] `php artisan migrate`
+- [ ] `php artisan db:seed`
+- [ ] `php artisan config:clear`
+- [ ] `npm run dev` (o `npm run build` para producción)
+- [ ] `php artisan serve`
+
+---
+
+## �📁 Estructura del Proyecto
+## 🔐 Credenciales de Acceso
+
+### Usuario Administrador
+- **Email:** admin@mangup.com
+- **Contraseña:** admin123
+- **Panel de administración:** http://localhost:8000/admin
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```
 tienda/
 ├── app/
-│   ├── Http/Controllers/     # Controladores
-│   └── Models/               # Modelos Eloquent
-│       ├── CategoriaManga.php
-│       ├── CategoriaFigura.php
-│       ├── CategoriaMerch.php
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/              # Controladores del panel admin
+│   │   │   ├── Auth/               # Autenticación
+│   │   │   ├── ProductoController.php
+│   │   │   ├── CarritoController.php
+│   │   │   ├── CheckoutController.php
+│   │   │   └── CuentaController.php
+│   │   └── Middleware/
+│   │       └── IsAdmin.php         # Middleware de autorización admin
+│   └── Models/                     # Modelos Eloquent
+│       ├── User.php
 │       ├── Manga.php
 │       ├── Figura.php
 │       ├── Merch.php
 │       ├── MerchVariante.php
-│       ├── Talla.php
-│       ├── Color.php
-│       └── Imagen.php
+│       ├── Pedido.php
+│       └── ...
 ├── database/
-│   ├── migrations/           # Migraciones de BD
-│   └── seeders/              # Datos de prueba
-├── resources/views/          # Vistas Blade
-│   ├── layouts/app.blade.php # Layout principal
-│   ├── partials/
-│   │   ├── header.blade.php
-│   │   └── footer.blade.php
-│   └── welcome.blade.php     # Página principal
-└── routes/web.php            # Rutas web
+│   ├── migrations/                 # Esquema de base de datos
+│   └── seeders/                    # Datos de prueba
+├── resources/
+│   ├── views/                      # Vistas Blade
+│   │   ├── admin/                  # Panel de administración
+│   │   ├── productos/              # Catálogo de productos
+│   │   ├── carrito/                # Carrito de compras
+│   │   ├── cuenta/                 # Mi cuenta
+│   │   └── auth/                   # Login/Registro
+│   └── css/                        # Estilos CSS
+├── public/
+│   ├── css/                        # CSS compilado
+│   ├── productos/                  # Imágenes de productos
+│   └── images/                     # Recursos visuales
+└── routes/
+    └── web.php                     # Definición de rutas
 ```
 
 ---
@@ -106,6 +270,7 @@ tienda/
 
 | Tabla | Descripción |
 |-------|-------------|
+| `users` | Usuarios del sistema (clientes y administradores) |
 | `categorias_manga` | Géneros de manga (Acción, Romance, Terror, etc.) |
 | `categorias_figura` | Series de figuras (One Piece, Naruto, etc.) |
 | `categorias_merch` | Tipos de merch (Camisetas, Tazas, etc.) |
@@ -114,12 +279,18 @@ tienda/
 | `merchs` | Productos de merchandising |
 | `merch_variantes` | Variantes de talla/color para merch |
 | `tallas` | Tallas disponibles (XS, S, M, L, XL, XXL) |
-| `colores` | Colores disponibles |
-| `imagenes` | Galería de imágenes (polimórfica) |
+| `colores` | Colores disponibles con código hexadecimal |
+| `imagenes` | Galería de imágenes (relación polimórfica) |
+| `pedidos` | Órdenes de compra de los clientes |
+| `pedido_items` | Detalles de productos en cada pedido |
+| `direcciones` | Direcciones de envío de los usuarios |
 
 ### Diagrama de relaciones:
 
 ```
+users (1) ─────────────────< (N) pedidos
+users (1) ─────────────────< (N) direcciones
+
 categorias_manga (1) ──────< (N) mangas
 categorias_figura (1) ─────< (N) figuras
 categorias_merch (1) ──────< (N) merchs
@@ -128,50 +299,11 @@ merchs (1) ────────────────< (N) merch_variantes
 tallas (1) ────────────────< (N) merch_variantes
 colores (1) ───────────────< (N) merch_variantes
 
+pedidos (1) ───────────────< (N) pedido_items
+mangas/figuras/merchs ─────< (N) pedido_items (polimórfica)
+
 mangas/figuras/merchs (1) ─< (N) imagenes (polimórfica)
 ```
-
----
-
-## 👥 Asignación de Tareas por Compañero
-
-### ⚫ Marco - Panel de Administración + Carrito y Gestión de Stock
-
-**Archivos a crear/modificar:**
-- `app/Http/Controllers/AdminController.php`
-- `app/Http/Controllers/CarritoController.php`
-- `resources/views/admin/` - Vistas del panel
-- `resources/views/carrito/` - Vistas del carrito
-- `routes/admin.php` - Rutas protegidas del admin
-- `app/Models/Carrito.php` (si es necesario)
-
-**Tareas:**
-
-1. **Sistema de Autenticación Admin:**
-   - Verificar roles de usuario (admin vs cliente)
-   - Middleware para proteger rutas de admin
-
-2. **Panel de Administración:**
-   - Dashboard con estadísticas (productos totales, stock bajo, etc.)
-   - Gestión de productos (CRUD)
-   - Gestión de categorías (CRUD)
-   - Gestión de variantes de merch
-   - Ver pedidos (estructura lista)
-
-3. **Gestión de Stock:**
-   - Vista de productos con stock bajo (< 5 unidades)
-   - Actualizar stock de productos
-   - Alertas de stock agotado
-   - Restar stock automáticamente al comprar
-
-4. **Sistema de Carrito:**
-   - Almacenar carrito en sesión/base de datos
-   - Añadir productos al carrito
-   - Eliminar productos del carrito
-   - Actualizar cantidades
-   - Calcular totales (subtotal, impuestos, total)
-   - Vista del carrito
-   - Validar stock disponible antes de añadir
 
 **Rutas Admin (ejemplos):**
 ```php
@@ -190,135 +322,6 @@ Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])-
 Route::patch('/carrito/actualizar/{id}', [CarritoController::class, 'actualizar'])->name('carrito.actualizar');
 Route::get('/carrito', [CarritoController::class, 'ver'])->name('carrito.ver');
 ```
-
----
-
-### 🔵 LORENZO - TODOS LOS SEEDERS (Base de Datos)
-
-**Archivos a crear/modificar:**
-- `database/seeders/CategoriaMangaSeeder.php`
-- `database/seeders/CategoriaFiguraSeeder.php`
-- `database/seeders/CategoriaMerchSeeder.php`
-- `database/seeders/TallaSeeder.php`
-- `database/seeders/ColorSeeder.php`
-- `database/seeders/MangaSeeder.php`
-- `database/seeders/FiguraSeeder.php`
-- `database/seeders/MerchSeeder.php`
-- `database/seeders/MerchVarianteSeeder.php`
-
-**Tareas:**
-
-1. **Categorías de Manga** (10 géneros):
-   - Acción, Romance, Terror, Fantasía, Comedia, Aventura, Drama, Ciencia Ficción, Misterio, Deportes
-
-2. **Categorías de Figuras** (7 series):
-   - One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia, Attack on Titan, Jujutsu Kaisen
-
-3. **Categorías de Merch** (6 tipos):
-   - Camisetas, Sudaderas, Tazas, Posters, Llaveros, Mochilas
-
-4. **Tallas** (6):
-   - XS, S, M, L, XL, XXL
-
-5. **Colores** (10):
-   - Negro (#000000), Blanco (#FFFFFF), Gris (#808080), Rojo (#FF0000), Azul (#0000FF), Verde (#008000), Amarillo (#FFFF00), Rosa (#FFC0CB), Naranja (#FFA500), Morado (#800080)
-
-6. **Mangas** (mínimo 15 con todos los campos: nombre, descripcion, precio, stock, autor, editorial, fecha_publicacion, numero_paginas, isbn, numero_tomo):
-   - One Piece, Naruto, Dragon Ball, Demon Slayer, My Hero Academia, Attack on Titan, Death Note, Fullmetal Alchemist, Spy x Family, Chainsaw Man, Jujutsu Kaisen, Sailor Moon, Fruits Basket, Junji Ito Collection, etc.
-
-7. **Figuras** (mínimo 10 con: nombre, descripcion, precio, stock):
-   - Figuras de personajes principales de las series
-
-8. **Merch** (mínimo 10 productos: camisetas, sudaderas, tazas, posters, etc.)
-
-9. **Variantes de Merch** (combinaciones de talla/color/stock para cada merch)
-
-**Modificar `DatabaseSeeder.php` para ejecutar todos los seeders en orden:**
-```php
-public function run(): void
-{
-    $this->call([
-        CategoriaMangaSeeder::class,
-        CategoriaFiguraSeeder::class,
-        CategoriaMerchSeeder::class,
-        TallaSeeder::class,
-        ColorSeeder::class,
-        MangaSeeder::class,
-        FiguraSeeder::class,
-        MerchSeeder::class,
-        MerchVarianteSeeder::class,
-    ]);
-}
-```
-
----
-
-### 🟢 MARIO - Controladores y Rutas
-
-**Archivos a crear/modificar:**
-- `app/Http/Controllers/ProductoController.php`
-- `app/Http/Controllers/CategoriaController.php`
-- `routes/web.php`
-
-**Tareas:**
-1. Crear controlador **ProductoController** con métodos:
-   - `index()` - Listar todos los productos
-   - `show($id)` - Mostrar detalle de un producto
-   - `porCategoria($id)` - Filtrar productos por categoría
-
-2. Crear controlador **CategoriaController** con métodos:
-   - `index()` - Listar todas las categorías
-
-3. Definir rutas en `routes/web.php`:
-   - `GET /` → Página principal con todos los productos
-   - `GET /productos` → Listado de productos
-   - `GET /productos/{id}` → Detalle del producto
-   - `GET /categorias/{id}/productos` → Productos por categoría
-   - `GET /categorias` → Listado de categorías
-
-**Ejemplo de ruta:**
-```php
-Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
-Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('productos.show');
-Route::get('/categorias/{id}/productos', [ProductoController::class, 'porCategoria'])->name('productos.categoria');
-```
-
----
-
-### 🟣 LUIS - Vistas y Sistema de Filtros
-
-**Archivos a crear/modificar:**
-- `resources/views/productos/index.blade.php` - Listado de productos
-- `resources/views/productos/show.blade.php` - Detalle del producto
-- `resources/views/partials/filtros.blade.php` - Panel de filtros
-- `resources/views/partials/card-producto.blade.php` - Tarjeta reutilizable
-- `resources/css/custom.css` - Estilos personalizados
-
-**Tareas:**
-1. Crear vista **index.blade.php** con:
-   - Grid de productos con tarjetas
-   - Barra de filtros (por categoría, precio, disponibilidad)
-   - Búsqueda por nombre
-
-2. Crear vista **show.blade.php** con:
-   - Imagen principal y galería
-   - Nombre, descripción, precio
-   - Stock y disponibilidad
-   - Botón "Añadir al carrito" (solo estructura HTML)
-
-3. Crear componente **card-producto.blade.php**:
-   - Tarjeta reutilizable con imagen, nombre, precio
-   - Botón de detalles
-
-4. Crear panel de **filtros.blade.php**:
-   - Filtro por categoría (checkboxes)
-   - Filtro por rango de precio (slider)
-   - Botón "Filtrar"
-
-5. Añadir estilos CSS personalizados para:
-   - Grid responsivo
-   - Cards atractivas
-   - Filtros funcionales
 
 ---
 
@@ -349,6 +352,211 @@ Route::get('/categorias/{id}/productos', [ProductoController::class, 'porCategor
 - [ ] Panel de usuarios con historial de compras
 - [ ] Sistema de reseñas y calificaciones
 - [ ] Relaciones avanzadas Eloquent
+---
+
+## 🎯 Casos de Uso del Sistema
+
+### 👤 Usuario Cliente (No autenticado)
+
+1. **Explorar Catálogo de Productos**
+   - Ver todos los productos disponibles (mangas, figuras, merch)
+   - Filtrar productos por tipo, categoría y precio
+   - Ordenar productos por nombre, precio o fecha
+   - Buscar productos por nombre
+
+2. **Ver Detalles de Producto**
+   - Visualizar información completa del producto
+   - Ver galería de imágenes
+   - Consultar stock disponible
+   - Ver productos relacionados
+
+3. **Gestionar Carrito de Compras**
+   - Añadir productos al carrito
+   - Modificar cantidades
+   - Eliminar productos
+   - Ver total y resumen del carrito
+
+4. **Registro y Autenticación**
+   - Crear nueva cuenta de cliente
+   - Iniciar sesión
+   - Cerrar sesión
+
+### 👤 Usuario Cliente (Autenticado)
+
+Todos los casos del usuario no autenticado, más:
+
+5. **Realizar Compras**
+   - Proceder al checkout
+   - Completar información de envío
+   - Realizar pago mediante Stripe
+   - Recibir confirmación de pedido
+
+6. **Gestionar Mi Cuenta**
+   - Ver y editar datos personales
+   - Cambiar contraseña
+   - Ver historial de pedidos
+   - Gestionar direcciones de envío
+
+### 🔒 Usuario Administrador
+
+Todos los casos del usuario autenticado, más:
+
+7. **Dashboard Administrativo**
+   - Ver estadísticas generales del negocio
+   - Consultar totales de productos por tipo
+   - Identificar productos con stock bajo
+   - Visualizar pedidos pendientes
+
+8. **Gestión de Productos (CRUD)**
+   - Crear nuevos mangas, figuras y merchandising
+   - Editar información de productos existentes
+   - Actualizar stock y precios
+   - Eliminar productos
+   - Subir y gestionar imágenes múltiples por producto
+
+9. **Gestión de Variantes de Merch**
+   - Crear variantes de talla y color
+   - Asignar stock específico a cada variante
+   - Editar y eliminar variantes
+
+10. **Gestión de Categorías**
+    - Crear categorías de manga, figuras y merch
+    - Editar información de categorías
+    - Eliminar categorías (si no tienen productos)
+
+11. **Gestión de Usuarios**
+    - Ver lista de todos los usuarios
+    - Buscar usuarios por nombre o email
+    - Otorgar o revocar permisos de administrador
+    - Editar información de usuarios
+    - Eliminar cuentas de usuario
+
+12. **Control de Pedidos**
+    - Ver todos los pedidos realizados
+    - Filtrar pedidos por estado
+    - Ver detalles completos de cada pedido
+    - Actualizar estado de pedidos
+
+---
+
+## 📊 Diagrama de Casos de Uso
+
+```
+                    Sistema MangUP
+  ┌─────────────────────────────────────────────┐
+  │                                             │
+  │  [Explorar Catálogo]                        │◄───── Usuario Visitante
+  │  [Ver Detalles Producto]                    │
+  │  [Gestionar Carrito]                        │
+  │  [Registrarse / Iniciar Sesión]             │
+  │                                             │
+  │  ─────────────────────────────────          │
+  │                                             │
+  │  [Realizar Compra]                          │◄───── Usuario Registrado
+  │  [Ver Mis Pedidos]                          │       (extends: Visitante)
+  │  [Gestionar Mi Cuenta]                      │
+  │  [Gestionar Direcciones]                    │
+  │                                             │
+  │  ─────────────────────────────────          │
+  │                                             │
+  │  [Dashboard Admin]                          │◄───── Administrador
+  │  [CRUD Productos]                           │       (extends: Registrado)
+  │  [CRUD Categorías]                          │
+  │  [Gestión de Usuarios]                      │
+  │  [Control de Pedidos]                       │
+  │  [Gestión de Stock]                         │
+  │                                             │
+  │  ─────────────────────────────────          │
+  │                                             │
+  │  [Procesar Pago]                            │◄───── Sistema Stripe
+  │  [Enviar Confirmación]                      │       (procesamiento externo)
+  │                                             │
+  └─────────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 Flujo de Navegación del Usuario
+
+### Cliente realizando una compra
+
+```
+1. Inicio → Ver Productos → [Catálogo]
+                                  ↓
+2. Seleccionar Producto → [Detalle Producto]
+                                  ↓
+3. Añadir al Carrito → [Carrito de Compras]
+                                  ↓
+4. ¿Usuario registrado?
+   NO → [Registro/Login] → Continuar
+   SÍ → Continuar
+                                  ↓
+5. Checkout → [Formulario de Envío]
+                                  ↓
+6. Procesar Pago → [Stripe Payment]
+                                  ↓
+7. Confirmación → [Pedido Exitoso]
+                                  ↓
+8. Mi Cuenta → [Ver Mis Pedidos]
+```
+
+### Administrador gestionando inventario
+
+```
+1. Login Admin → [/admin]
+                     ↓
+2. Dashboard → [Estadísticas y Resumen]
+                     ↓
+3. Gestión de Productos → [Lista de Productos]
+                     ↓
+4. Crear/Editar → [Formulario CRUD]
+                     ↓
+5. Guardar → [Confirmar Cambios]
+                     ↓
+6. Ver Stock Bajo → [Alertas de Inventario]
+```
+
+---
+
+## 🛠️ Funcionalidades Principales
+
+### 🛍️ Catálogo de Productos
+- **Grid responsivo** con diseño moderno tipo tarjeta
+- **Filtros avanzados** por tipo, categoría, precio
+- **Ordenamiento** por precio, nombre, fecha de ingreso
+- **Barra de búsqueda** en tiempo real
+- **Paginación** de resultados
+
+### 🛒 Sistema de Carrito
+- Carrito persistente en **sesión de usuario**
+- Actualización dinámica de cantidades
+- Validación de stock disponible
+- Cálculo automático de totales
+- Resumen visual del carrito
+
+### 💳 Checkout y Pagos
+- Integración con **Stripe Payment Gateway**
+- Formulario de dirección de envío
+- Resumen detallado del pedido
+- Confirmación por email (estructura lista)
+- Historial de pedidos en Mi Cuenta
+
+### 🔐 Autenticación y Usuarios
+- Registro de nuevos clientes
+- Login/Logout seguro
+- Gestión de perfil personal
+- Cambio de contraseña
+- Direcciones de envío múltiples
+
+### 👨‍💼 Panel de Administración
+- **Dashboard** con estadísticas en tiempo real
+- CRUD completo de productos (Mangas, Figuras, Merch)
+- CRUD de categorías por tipo de producto
+- Gestión de usuarios con asignación de roles
+- Control de pedidos y estados
+- Alertas de stock bajo (< 5 unidades)
+- Subida múltiple de imágenes
+- Interfaz moderna y responsive
 
 ---
 
@@ -365,7 +573,7 @@ php artisan migrate:fresh
 php artisan db:seed
 
 # Ejecutar un seeder específico
-php artisan db:seed --class=CategoriaMangaSeeder
+php artisan db:seed --class=AdminUserSeeder
 
 # Crear enlace simbólico para storage
 php artisan storage:link
@@ -374,30 +582,126 @@ php artisan storage:link
 php artisan cache:clear
 php artisan config:clear
 php artisan view:clear
+php artisan route:clear
 
 # Iniciar servidor de desarrollo
 php artisan serve
+
+# Compilar assets (CSS/JS)
+npm run dev         # Desarrollo
+npm run build       # Producción
 ```
 
 ---
 
-## 📞 Contacto del Equipo
+## 🔧 Tecnologías Utilizadas
 
-- **Coordinador / Panel Admin / Carrito:** Tú (Marco)
-- **Lorenzo:** Seeders de Base de Datos
-- **Mario:** Controladores y Rutas
-- **Luis:** Vistas y Filtros
+### Backend
+- **Laravel 12** - Framework PHP moderno
+- **MySQL 8.0** - Base de datos relacional
+- **Stripe PHP SDK** - Procesamiento de pagos
+
+### Frontend
+- **Blade Templates** - Motor de plantillas de Laravel
+- **Bootstrap 5** - Framework CSS responsive
+- **Bootstrap Icons** - Iconos vectoriales
+- **Vanilla JavaScript** - Interactividad del cliente
+
+### Herramientas de Desarrollo
+- **Composer** - Gestor de dependencias PHP
+- **NPM** - Gestor de paquetes Node.js
+- **Vite** - Compilador de assets moderno
+- **Git** - Control de versiones
 
 ---
 
-## 📝 Notas Importantes
+## 📂 Modelos y Relaciones Principales
 
-1. **Antes de empezar**, asegúrate de tener la base de datos creada
-2. **Ejecuta las migraciones** antes de crear los seeders
-3. **Comunica los cambios** al resto del equipo
-4. **Haz commits frecuentes** con mensajes descriptivos
-5. **Revisa el código** de tus compañeros antes de hacer merge
+### User (Usuario)
+```php
+- Relaciones:
+  - hasMany(Pedido)
+  - hasMany(Direccion)
+- Métodos:
+  - isAdmin(): bool
+```
+
+### Producto (Manga | Figura | Merch)
+```php
+- Relaciones:
+  - belongsTo(Categoria)
+  - morphMany(Imagen)
+  - morphMany(PedidoItem)
+```
+
+### Pedido
+```php
+- Relaciones:
+  - belongsTo(User)
+  - belongsTo(Direccion)
+  - hasMany(PedidoItem)
+- Estados:
+  - pendiente, pagado, enviado, entregado, cancelado
+```
+
+### MerchVariante
+```php
+- Relaciones:
+  - belongsTo(Merch)
+  - belongsTo(Talla)
+  - belongsTo(Color)
+- Campos:
+  - stock_individual por variante
+```
 
 ---
 
-¡Buena suerte con el proyecto! 🚀
+## 🔒 Seguridad Implementada
+
+- ✅ **Autenticación** mediante Laravel Breeze
+- ✅ **Middleware IsAdmin** para proteger rutas administrativas
+- ✅ **CSRF Protection** en todos los formularios
+- ✅ **Validación de datos** en formularios
+- ✅ **Hashing de contraseñas** con bcrypt
+- ✅ **Autorización por roles** (admin/cliente)
+- ✅ **Validación de stock** antes de permitir compras
+
+---
+
+## 📝 Notas de Desarrollo
+
+### Base de Datos Persistente
+La base de datos MySQL es **persistente** y mantiene todos los datos entre reinicios del servidor. Los usuarios creados, productos añadidos y pedidos realizados se conservan permanentemente.
+
+### Usuario Administrador
+El seeder `AdminUserSeeder` crea automáticamente un usuario administrador al ejecutar `php artisan db:seed`. Este usuario puede:
+- Acceder al panel de administración en `/admin`
+- Gestionar productos, categorías y usuarios
+- Ver y controlar pedidos
+- Otorgar permisos de administrador a otros usuarios
+
+### Extensiones PHP Necesarias
+Asegúrate de tener habilitadas las siguientes extensiones en tu `php.ini`:
+- `extension=openssl` - Para cifrado y Stripe
+- `extension=pdo_mysql` - Para conexión a MySQL
+- `extension=mysqli` - Driver MySQL adicional
+- `extension=mbstring` - Para cadenas multibyte
+- `extension=curl` - Para peticiones HTTP (Stripe)
+- `extension=fileinfo` - Para gestión de archivos
+- `extension_dir = "ext"` - Directorio de extensiones (Windows)
+
+### Stripe en Modo Test
+El proyecto está configurado para usar **Stripe en modo test**. Las claves están en el archivo `.env`:
+```env
+STRIPE_KEY=pk_test_...
+STRIPE_SECRET=sk_test_...
+```
+
+Para probar pagos, usa las tarjetas de prueba de Stripe:
+- **Tarjeta exitosa:** 4242 4242 4242 4242
+- **CVC:** Cualquier 3 dígitos
+- **Fecha:** Cualquier fecha futura
+
+---
+
+¡Explora MangUP y disfruta comprando tus mangas y productos anime favoritos! 🎌📚✨

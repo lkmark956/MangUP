@@ -224,6 +224,20 @@
     border-color: var(--color-border);
 }
 
+.user-dropdown-menu .admin-link {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
+}
+
+.user-dropdown-menu .admin-link:hover {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-light) 100%);
+    color: var(--color-primary-dark);
+}
+
+.user-dropdown-menu .admin-link i {
+    font-size: 1.1em;
+}
+
 /* ==========================================
    Footer
    ========================================== */

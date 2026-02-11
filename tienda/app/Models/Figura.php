@@ -55,6 +55,11 @@ class Figura extends Model
     public function getImagenPrincipalAttribute()
     {
         $imagen = $this->imagenes()->where('es_principal', true)->first();
-        return $imagen ? asset($imagen->ruta) : asset('images/placeholder.svg');
+        if ($imagen) {
+            // La ruta ya debería venir con el formato correcto desde la BD
+            // Ej: productos/figuras/imagen.jpg
+            return asset($imagen->ruta);
+        }
+        return asset('images/placeholder.svg');
     }
 }

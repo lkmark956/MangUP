@@ -27,6 +27,12 @@
 
                     <div class="order-details bg-light rounded p-4 mb-4">
                         <h5 class="mb-3"><i class="bi bi-receipt me-2"></i>Detalles del pedido</h5>
+                        @if(isset($pedido) && $pedido)
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Número de pedido:</span>
+                                <strong>{{ $pedido->numero_pedido }}</strong>
+                            </div>
+                        @endif
                         <div class="d-flex justify-content-between mb-2">
                             <span>ID de transacción:</span>
                             <code>{{ substr($session->id, 0, 20) }}...</code>
@@ -42,6 +48,11 @@
                     </div>
 
                     <div class="d-grid gap-3">
+                        @if(auth()->check() && isset($pedido) && $pedido)
+                            <a href="{{ route('cuenta.pedidos.show', $pedido->id) }}" class="btn btn-success btn-lg">
+                                <i class="bi bi-eye me-2"></i>Ver mi pedido
+                            </a>
+                        @endif
                         <a href="{{ route('productos.index') }}" class="btn btn-primary btn-lg">
                             <i class="bi bi-bag me-2"></i>Seguir comprando
                         </a>

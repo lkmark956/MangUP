@@ -13,7 +13,8 @@ class Color extends Model
 
     protected $fillable = [
         'nombre',
-        'hex'
+        'hex',
+        'codigo_hex'
     ];
 
     /**

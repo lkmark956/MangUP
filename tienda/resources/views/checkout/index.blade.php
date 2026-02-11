@@ -41,6 +41,19 @@
                                         • {{ $item['producto']->categoria->nombre }}
                                     @endif
                                 </small>
+                                @if(isset($item['variante']))
+                                    <div class="mt-1">
+                                        <small class="text-primary">
+                                            @if($item['variante']->talla)
+                                                <i class="bi bi-rulers"></i> {{ $item['variante']->talla->nombre }}
+                                            @endif
+                                            @if($item['variante']->talla && $item['variante']->color) • @endif
+                                            @if($item['variante']->color)
+                                                <i class="bi bi-palette-fill"></i> {{ $item['variante']->color->nombre }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                @endif
                                 <div class="mt-1">
                                     <span class="text-muted">Cantidad: {{ $item['cantidad'] }}</span>
                                 </div>
@@ -155,7 +168,23 @@
 @push('scripts')
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    const stripe = Stripe('{{ config("stripe.key") }}');
+    @php
+        $stripeKey = config('stripe.key');
+        if (empty($stripeKey)) {
+            \Log::error('STRIPE_KEY no está configurada en el archivo .env');
+        }
+    @endphp
+    
+    const stripeKey = '{{ config("stripe.key") }}';
+    
+    if (!stripeKey || stripeKey === '') {
+        console.error('ERROR: STRIPE_KEY no está configurada');
+        document.getElementById('checkout-error').classList.remove('d-none');
+        document.getElementById('checkout-error').textContent = 'Error de configuración: La clave pública de Stripe (STRIPE_KEY) no está configurada. Por favor, contacta al administrador.';
+        document.getElementById('checkout-button').disabled = true;
+    }
+    
+    const stripe = Stripe(stripeKey);
     const checkoutButton = document.getElementById('checkout-button');
     const loadingDiv = document.getElementById('checkout-loading');
     const errorDiv = document.getElementById('checkout-error');

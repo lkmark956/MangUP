@@ -81,8 +81,9 @@ Accede a: http://localhost:8000
 3. Copia las claves en `.env`:
 
 ```env
-STRIPE_KEY=pk_test_tu_clave_publica
-STRIPE_SECRET=sk_test_tu_clave_secreta
+STRIPE_KEY=pk_test_51SwlqZJGgdOsjWc0lbv1UUT42nj51OCoiV0dDqhbCOtiA7n0Q71gpe2mYd2O80q1VoZ8c88qmlt5s1AsPirUHNmi00y5KdFbLb
+STRIPE_SECRET=sk_test_51SwlqZJGgdOsjWc0fcWJ53BwHnFlYRO3oV1zyv4iS9X5cqCwYP0WGEbpK5saTweq9dgNAluXe2xAAtu8JScI2zA100htbR04LH
+STRIPE_WEBHOOK_SECRET=
 ```
 
 ### Tarjeta de prueba

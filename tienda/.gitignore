@@ -1,0 +1,55 @@
+# Laravel .gitignore
+
+# Environment files
+.env
+.env.backup
+.env.production
+
+# Dependencies
+/node_modules
+/vendor
+
+# Build outputs
+/public/hot
+/public/build
+/public/storage
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Laravel specific
+storage/*.key
+storage/logs/*.log
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# NPM
+npm-debug.log
+yarn-error.log
+
+# Testing
+.phpunit.result.cache
+/coverage
+
+# Composer
+composer.phar
+
+# Database
+*.sqlite
+*.sqlite-journal
+
+# Don't ignore these important files
+!storage/app/.gitkeep
+!storage/framework/.gitkeep
+!storage/logs/.gitkeep
+!public/storage

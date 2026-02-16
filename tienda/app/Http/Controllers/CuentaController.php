@@ -102,7 +102,10 @@ class CuentaController extends Controller
     public function misPedidos()
     {
         $user = Auth::user();
-        $pedidos = [];
+        $pedidos = $user->pedidos()
+            ->with(['items.producto.imagenes'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('cuenta.pedidos', compact('user', 'pedidos'));
     }

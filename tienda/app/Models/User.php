@@ -64,6 +64,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relación con pedidos
+     */
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
+    /**
      * Método helper para verificar si el usuario es admin.
      * Uso: $user->isAdmin() o auth()->user()->isAdmin()
      */

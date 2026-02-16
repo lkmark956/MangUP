@@ -3,7 +3,7 @@
         'name' => 'escuela/sistema-gestion',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '694056dc2e0a4736811f28b4e127b87ee70ac450',
+        'reference' => 'f7877c2cc3e7b88e57533115057d15cb23ae6103',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -106,7 +106,7 @@
         'escuela/sistema-gestion' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '694056dc2e0a4736811f28b4e127b87ee70ac450',
+            'reference' => 'f7877c2cc3e7b88e57533115057d15cb23ae6103',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -631,6 +631,7 @@ class ComposerStaticInit8078c81fbb23f3fc37578b2651f04cc5
         'App\\Http\\Controllers\\CheckoutController' => __DIR__ . '/../..' . '/app/Http/Controllers/CheckoutController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\CuentaController' => __DIR__ . '/../..' . '/app/Http/Controllers/CuentaController.php',
+        'App\\Http\\Controllers\\PedidoController' => __DIR__ . '/../..' . '/app/Http/Controllers/PedidoController.php',
         'App\\Http\\Controllers\\ProductoController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProductoController.php',
         'App\\Http\\Middleware\\IsAdmin' => __DIR__ . '/../..' . '/app/Http/Middleware/IsAdmin.php',
         'App\\Models\\CategoriaFigura' => __DIR__ . '/../..' . '/app/Models/CategoriaFigura.php',

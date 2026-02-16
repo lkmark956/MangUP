@@ -28,6 +28,7 @@ class AuthenticateSession implements AuthenticatesSessions
      * Create a new middleware instance.
      *
      * @param  \Illuminate\Contracts\Auth\Factory  $auth
+     * @return void
      */
     public function __construct(AuthFactory $auth)
     {
@@ -48,10 +49,9 @@ class AuthenticateSession implements AuthenticatesSessions
         }
 
         if ($this->guard()->viaRemember()) {
-            $passwordHashFromCookie = explode('|', $request->cookies->get($this->guard()->getRecallerName()))[2] ?? null;
+            $passwordHash = explode('|', $request->cookies->get($this->guard()->getRecallerName()))[2] ?? null;
 
-            if (! $passwordHashFromCookie ||
-                ! $this->validatePasswordHash($request->user()->getAuthPassword(), $passwordHashFromCookie)) {
+            if (! $passwordHash || ! hash_equals($request->user()->getAuthPassword(), $passwordHash)) {
                 $this->logout($request);
             }
         }
@@ -60,9 +60,7 @@ class AuthenticateSession implements AuthenticatesSessions
             $this->storePasswordHashInSession($request);
         }
 
-        $sessionPasswordHash = $request->session()->get('password_hash_'.$this->auth->getDefaultDriver());
-
-        if (! $this->validatePasswordHash($request->user()->getAuthPassword(), $sessionPasswordHash)) {
+        if (! hash_equals($request->session()->get('password_hash_'.$this->auth->getDefaultDriver()), $request->user()->getAuthPassword())) {
             $this->logout($request);
         }
 
@@ -86,26 +84,8 @@ class AuthenticateSession implements AuthenticatesSessions
         }
 
         $request->session()->put([
-            'password_hash_'.$this->auth->getDefaultDriver() => $this->guard()->hashPasswordForCookie($request->user()->getAuthPassword()),
+            'password_hash_'.$this->auth->getDefaultDriver() => $request->user()->getAuthPassword(),
         ]);
-    }
-
-    /**
-     * Validate the password hash against the stored value.
-     *
-     * @param  string  $passwordHash
-     * @param  string  $storedValue
-     * @return bool
-     */
-    protected function validatePasswordHash($passwordHash, $storedValue)
-    {
-        // Try new HMAC format first...
-        if (hash_equals($this->guard()->hashPasswordForCookie($passwordHash), $storedValue)) {
-            return true;
-        }
-
-        // Fall back to raw password hash format for backward compatibility...
-        return hash_equals($passwordHash, $storedValue);
     }
 
     /**

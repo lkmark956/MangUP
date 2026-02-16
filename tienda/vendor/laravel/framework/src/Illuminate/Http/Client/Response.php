@@ -7,7 +7,6 @@ use GuzzleHttp\Psr7\StreamWrapper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Support\Traits\Tappable;
 use LogicException;
 use Stringable;
 
@@ -16,7 +15,7 @@ use Stringable;
  */
 class Response implements ArrayAccess, Stringable
 {
-    use Concerns\DeterminesStatusCode, Tappable, Macroable {
+    use Concerns\DeterminesStatusCode, Macroable {
         __call as macroCall;
     }
 
@@ -49,16 +48,10 @@ class Response implements ArrayAccess, Stringable
     public $transferStats;
 
     /**
-     * The length at which request exceptions will be truncated.
-     *
-     * @var int<1, max>|false|null
-     */
-    protected $truncateExceptionsAt = null;
-
-    /**
      * Create a new response instance.
      *
      * @param  \Psr\Http\Message\MessageInterface  $response
+     * @return void
      */
     public function __construct($response)
     {
@@ -243,7 +236,7 @@ class Response implements ArrayAccess, Stringable
     /**
      * Execute the given callback if there was a server or client error.
      *
-     * @param  callable|(\Closure(\Illuminate\Http\Client\Response): mixed)  $callback
+     * @param  callable  $callback
      * @return $this
      */
     public function onError(callable $callback)
@@ -305,7 +298,7 @@ class Response implements ArrayAccess, Stringable
     public function toException()
     {
         if ($this->failed()) {
-            return new RequestException($this, $this->truncateExceptionsAt);
+            return new RequestException($this);
         }
     }
 
@@ -345,22 +338,9 @@ class Response implements ArrayAccess, Stringable
     }
 
     /**
-     * Throw an exception if a server or client error occurred and the given condition evaluates to false.
-     *
-     * @param  \Closure|bool  $condition
-     * @return $this
-     *
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    public function throwUnless($condition)
-    {
-        return $this->throwIf(! $condition);
-    }
-
-    /**
      * Throw an exception if the response status code matches the given code.
      *
-     * @param  int|(\Closure(int, \Illuminate\Http\Client\Response): bool)|callable  $statusCode
+     * @param  callable|int  $statusCode
      * @return $this
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -378,7 +358,7 @@ class Response implements ArrayAccess, Stringable
     /**
      * Throw an exception unless the response status code matches the given code.
      *
-     * @param  int|(\Closure(int, \Illuminate\Http\Client\Response): bool)|callable  $statusCode
+     * @param  callable|int  $statusCode
      * @return $this
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -414,31 +394,6 @@ class Response implements ArrayAccess, Stringable
     public function throwIfServerError()
     {
         return $this->serverError() ? $this->throw() : $this;
-    }
-
-    /**
-     * Indicate that request exceptions should be truncated to the given length.
-     *
-     * @param  int<1, max>  $length
-     * @return $this
-     */
-    public function truncateExceptionsAt(int $length)
-    {
-        $this->truncateExceptionsAt = $length;
-
-        return $this;
-    }
-
-    /**
-     * Indicate that request exceptions should not be truncated.
-     *
-     * @return $this
-     */
-    public function dontTruncateExceptions()
-    {
-        $this->truncateExceptionsAt = false;
-
-        return $this;
     }
 
     /**
@@ -572,7 +527,7 @@ class Response implements ArrayAccess, Stringable
     public function __call($method, $parameters)
     {
         return static::hasMacro($method)
-            ? $this->macroCall($method, $parameters)
-            : $this->response->{$method}(...$parameters);
+                    ? $this->macroCall($method, $parameters)
+                    : $this->response->{$method}(...$parameters);
     }
 }

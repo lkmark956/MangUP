@@ -2,6 +2,67 @@
 
 **MangUP** es un ecommerce desarrollado con Laravel para la venta de manga, figuras coleccionables y merchandising anime.
 
+> **📁 Nota importante:** La aplicación Laravel se encuentra en la carpeta `tienda/`. Todos los comandos deben ejecutarse desde esa carpeta.
+
+---
+
+## 📑 Tabla de Contenidos
+
+- [🚀 Inicio Rápido (Quick Start)](#-inicio-rápido-quick-start)
+- [✅ ¿Funcionará en otro PC sin cambios?](#-funcionará-en-otro-pc-sin-cambios)
+- [📋 Requisitos del Sistema](#-requisitos-del-sistema)
+- [🚀 Instalación Completa](#-instalación)
+- [🔧 Solución de Problemas](#-solución-de-problemas-troubleshooting)
+- [🛠️ Funcionalidades Principales](#️-funcionalidades-principales)
+- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🎯 Casos de Uso del Sistema](#-casos-de-uso-del-sistema)
+- [🔧 Tecnologías Utilizadas](#-tecnologías-utilizadas)
+- [🔒 Seguridad Implementada](#-seguridad-implementada)
+- [📤 Subir cambios a Git](#-subir-cambios-a-git)
+- [📝 Notas de Desarrollo](#-notas-de-desarrollo)
+
+---
+
+## 🚀 Inicio Rápido (Quick Start)
+
+Si ya tienes instalado PHP 8.2+, Composer, MySQL y Node.js:
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/lkmark956/MangUP.git
+cd MangUP/tienda
+
+# 2. Instalar dependencias
+composer install
+npm install
+
+# 3. Configurar entorno
+copy .env.example .env       # En Windows (cmd)
+cp .env.example .env         # En Linux/Mac
+php artisan key:generate
+
+# 4. Crear base de datos en MySQL
+# Ejecuta: CREATE DATABASE mangup_db;
+
+# 5. Configurar .env
+# Edita el archivo .env con tus credenciales de MySQL y Stripe
+
+# 6. Migrar base de datos
+php artisan migrate --seed
+
+# 7. Crear enlace de storage
+php artisan storage:link
+
+# 8. Compilar assets
+npm run build
+
+# 9. Iniciar servidor
+php artisan serve
+# Accede a: http://localhost:8000
+```
+
+⚠️ **No olvides configurar tus claves de Stripe en el archivo `.env`** (ve a la [sección de instalación completa](#-instalación) para más detalles).
+
 ---
 
 ## ✅ ¿Funcionará en otro PC sin cambios?
@@ -12,7 +73,7 @@
 2. ⚙️ **Configuración local:** Cada persona debe configurar:
    - Su archivo `.env` con credenciales de MySQL locales
    - Sus propias claves gratuitas de Stripe (modo test)
-3. 📦 **Dependencias:** Se instalan automáticamente con `composer install`
+3. 📦 **Dependencias:** Se instalan automáticamente con `composer install` y `npm install`
 
 **No necesitas modificar ningún archivo de código.** Solo sigue la [Guía de Instalación](#-instalación) paso a paso.
 
@@ -20,15 +81,75 @@
 
 ## 📋 Requisitos del Sistema
 
-- PHP >= 8.2
-- Composer
-- MySQL >= 8.0
-- Node.js >= 18 (para compilar assets)
-- Extensiones PHP requeridas: `openssl`, `pdo_mysql`, `mysqli`, `mbstring`, `curl`, `fileinfo`
+### Software necesario:
+- **PHP** >= 8.2
+- **Composer** (gestor de dependencias de PHP)
+- **MySQL** >= 8.0 o **MariaDB** >= 10.3
+- **Node.js** >= 18 y **npm** (para compilar assets CSS/JS)
+
+### Extensiones PHP requeridas:
+- `openssl`
+- `pdo_mysql`
+- `mysqli`
+- `mbstring`
+- `curl`
+- `fileinfo`
+- `tokenizer`
+- `xml`
+- `ctype`
+- `json`
+- `bcmath`
+
+### Verificar requisitos:
+
+```bash
+# Verificar versión de PHP
+php -v
+
+# Verificar extensiones PHP instaladas
+php -m
+
+# Verificar Composer
+composer -V
+
+# Verificar MySQL
+mysql --version
+
+# Verificar Node.js y npm
+node -v
+npm -v
+```
+
+### Instalación de requisitos:
+
+**Windows:**
+- PHP: [XAMPP](https://www.apachefriends.org/) o [Laragon](https://laragon.org/)
+- Composer: [getcomposer.org](https://getcomposer.org/download/)
+- MySQL: Incluido en XAMPP/Laragon
+- Node.js: [nodejs.org](https://nodejs.org/)
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install php8.2 php8.2-cli php8.2-mysql php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip
+sudo apt install composer
+sudo apt install mysql-server
+sudo apt install nodejs npm
+```
+
+**macOS:**
+```bash
+brew install php@8.2
+brew install composer
+brew install mysql
+brew install node
+```
 
 ---
 
 ## 🚀 Instalación
+
+Sigue estos pasos **en orden** para clonar y ejecutar el proyecto:
 
 ### 1. Clonar el repositorio
 ```bash
@@ -36,21 +157,53 @@ git clone https://github.com/lkmark956/MangUP.git
 cd MangUP/tienda
 ```
 
-### 2. Instalar dependencias
+### 2. Instalar dependencias de PHP
 ```bash
 composer install
-npm install
 ```
+
+> **⚠️ Importante:** Si `composer install` falla o da errores de archivos faltantes, elimina el directorio `vendor` y vuelve a instalar:
+> ```bash
+> # En Windows:
+> rmdir /s /q vendor
+> composer install
+> 
+> # En Linux/Mac:
+> rm -rf vendor
+> composer install
+> ```
 
 > **Nota:** `composer install` instalará automáticamente todas las dependencias necesarias, incluyendo la librería `stripe/stripe-php` para procesamiento de pagos.
 
-### 3. Configurar el entorno
+### 3. Instalar dependencias de Node.js
 ```bash
+npm install
+```
+
+### 4. Configurar el archivo de entorno
+```bash
+# En Windows (cmd):
+copy .env.example .env
+
+# En Windows (PowerShell):
 cp .env.example .env
+
+# En Linux/Mac:
+cp .env.example .env
+```
+
+### 5. Generar la clave de aplicación
+```bash
 php artisan key:generate
 ```
 
-### 4. Configurar la base de datos
+### 6. Crear la base de datos
+Abre MySQL y ejecuta:
+```sql
+CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 7. Configurar la base de datos
 Edita el archivo `.env` con tus credenciales de MySQL:
 ```env
 DB_CONNECTION=mysql
@@ -61,17 +214,17 @@ DB_USERNAME=root
 DB_PASSWORD=tu_password_mysql
 ```
 
-### 5. Configurar Stripe (Sistema de Pagos)
-**⚠️ IMPORTANTE:** Para que funcione el sistema de pagos, debes configurar tus propias claves de Stripe.
+### 8. Configurar Stripe (Sistema de Pagos)
+**⚠️ OBLIGATORIO:** El sistema de pagos requiere claves de Stripe válidas.
 
-#### Obtener claves de Stripe:
-1. Crea una cuenta gratuita en [Stripe](https://stripe.com)
+#### Paso 1: Obtener claves de Stripe
+1. Crea una cuenta **gratuita** en [Stripe](https://stripe.com)
 2. Ve al [Dashboard de Stripe (Modo Test)](https://dashboard.stripe.com/test/apikeys)
-3. **Asegúrate de estar en modo "Test"** (esquina superior izquierda)
+3. **Asegúrate de estar en modo "Test"** (interruptor en la esquina superior izquierda)
 4. Copia tu **Publishable key** (empieza con `pk_test_...`)
-5. Copia tu **Secret key** (empieza con `sk_test_...`) - haz clic en "Reveal"
+5. Copia tu **Secret key** (empieza con `sk_test_...`) - haz clic en "Reveal test key"
 
-#### Configurar en .env:
+#### Paso 2: Configurar en .env
 Edita el archivo `.env` y añade tus claves:
 ```env
 STRIPE_KEY=pk_test_TuClavePublicaAqui
@@ -79,63 +232,79 @@ STRIPE_SECRET=sk_test_TuClaveSecretaAqui
 STRIPE_WEBHOOK_SECRET=
 ```
 
-**Importante:**
-- ✅ Las claves **NO** deben tener espacios al inicio ni al final
-- ✅ `STRIPE_KEY` debe empezar con `pk_test_` (modo prueba)
-- ✅ `STRIPE_SECRET` debe empezar con `sk_test_` (modo prueba)
-- ⚠️ **NUNCA** subas tus claves reales a GitHub
-- 💡 Para producción, usa las claves que empiezan con `pk_live_` y `sk_live_`
+**✅ Checklist importante:**
+- [ ] Las claves **NO** tienen espacios al inicio ni al final
+- [ ] `STRIPE_KEY` empieza con `pk_test_` (modo prueba)
+- [ ] `STRIPE_SECRET` empieza con `sk_test_` (modo prueba)
+- [ ] Las claves están copiadas completamente sin errores
 
-> **Nota:** El proyecto usa **Laravel 12+** con configuración moderna de Stripe. Las claves se configuran en `config/services.php` y se pasan como parámetro en cada llamada a la API, evitando problemas de estado global.
+**⚠️ Seguridad:**
+- ❌ **NUNCA** subas tus claves reales a GitHub
+- ✅ El archivo `.env.example` solo contiene placeholders
+- ✅ Para producción, usa claves que empiezan con `pk_live_` y `sk_live_`
 
-### 6. Crear la base de datos
-En MySQL, crea la base de datos:
-```sql
-CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+> **Nota técnica:** El proyecto usa **Laravel 11+** con configuración moderna de Stripe. Las claves se configuran en `config/services.php` y se pasan como parámetro en cada llamada a la API.
 
-### 7. Ejecutar migraciones y seeders
+### 9. Ejecutar migraciones y seeders
 ```bash
-php artisan migrate
-php artisan db:seed
+php artisan migrate --seed
 ```
 
-### 8. Limpiar caché (importante)
+Esto creará todas las tablas necesarias y cargará datos de prueba (productos, categorías, etc.).
+
+### 10. Crear enlace simbólico para imágenes
+```bash
+php artisan storage:link
+```
+
+### 11. Limpiar y configurar caché
 ```bash
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
+php artisan view:clear
 ```
 
-### 9. Compilar assets (opcional)
+### 12. Compilar assets (CSS/JS)
+
+**Para desarrollo:**
 ```bash
 npm run dev
 ```
 
-### 10. Iniciar el servidor
+**Para producción:**
+```bash
+npm run build
+```
+
+### 13. Iniciar el servidor
 
 **Opción 1 - Laravel Artisan (recomendado):**
 ```bash
 php artisan serve
 ```
-Accede a: `http://localhost:8000`
+✅ Accede a: `http://localhost:8000`
 
 **Opción 2 - Servidor PHP built-in:**
 ```bash
 cd public
 php -S 127.0.0.1:9500 router.php
 ```
-Accede a: `http://127.0.0.1:9500`
+✅ Accede a: `http://127.0.0.1:9500`
 
-### 11. Verificar instalación (Opcional)
+**Opción 3 - XAMPP/WAMP:**
+- Configura el DocumentRoot a la carpeta `public` del proyecto
+- Accede a: `http://localhost`
 
-Puedes ejecutar este script para verificar que todo está configurado:
+### 14. Verificar instalación (Opcional)
+
+Ejecuta este script para verificar que Stripe está configurado correctamente:
 
 ```bash
 php test-stripe-api.php
 ```
 
-Debería mostrar:
+**Salida esperada:**
 ```
 ✅ Clase Stripe\Stripe encontrada
 ✅ Clase Stripe\Checkout\Session encontrada
@@ -143,18 +312,40 @@ Debería mostrar:
 🎉 Todas las clases de Stripe están disponibles!
 ```
 
+### 15. Probar la aplicación
+
+1. Abre el navegador y ve a `http://localhost:8000`
+2. Explora el catálogo de productos
+3. Añade productos al carrito
+4. Procede al checkout
+
+**Para probar pagos con Stripe (modo test):**
+- 💳 Tarjeta de prueba: `4242 4242 4242 4242`
+- 📅 Fecha: Cualquier fecha futura (ej: `12/34`)
+- 🔐 CVV: Cualquier 3 dígitos (ej: `123`)
+- 📧 Email: Cualquier email válido
+
 ---
 
-## � Solución de Problemas (Troubleshooting)
-### ❌ Error: "Class 'Stripe\Checkout\Session' not found"
+## 🔧 Solución de Problemas (Troubleshooting)
 
-Si al hacer un pago ves el error `Unexpected token '<', "<!DOCTYPE "... is not valid JSON` o `Class "Stripe\Checkout\Session" not found`:
+### ❌ Error: "Failed to open stream: No such file or directory" (Vendor corrupto)
 
-**Solución:**
+**Síntoma:** Errores como:
+```
+include(C:\...\vendor\stripe\stripe-php\lib\Checkout\Session.php): 
+Failed to open stream: No such file or directory
+```
+
+**Causa:** El directorio `vendor` está corrupto, incompleto o contiene archivos de otra instalación.
+
+**Solución (Windows):**
 ```bash
-# Reinstalar la librería de Stripe
-composer remove stripe/stripe-php
-composer require stripe/stripe-php --prefer-dist
+# Eliminar completamente el directorio vendor
+rmdir /s /q vendor
+
+# Reinstalar todas las dependencias
+composer install
 
 # Limpiar caché
 php artisan config:clear
@@ -163,26 +354,76 @@ php artisan cache:clear
 # Reiniciar el servidor
 php artisan serve
 ```
-### ❌ "Se rompe al rellenar datos de pago con Stripe"
 
-Si el formulario de pago falla o da errores al intentar pagar, sigue estos pasos:
+**Solución (Linux/Mac):**
+```bash
+# Eliminar completamente el directorio vendor
+rm -rf vendor
+
+# Reinstalar todas las dependencias
+composer install
+
+# Limpiar caché
+php artisan config:clear
+php artisan cache:clear
+
+# Reiniciar el servidor
+php artisan serve
+```
+
+---
+
+### ❌ Error: "Class 'Stripe\Checkout\Session' not found"
+
+**Síntoma:** Al intentar hacer un pago aparece el error `Class "Stripe\Checkout\Session" not found` o `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`.
+
+**Causa:** La librería de Stripe no está instalada o el autoloader no está actualizado.
+
+**Solución:**
+```bash
+# Verificar que Stripe esté instalado
+composer show stripe/stripe-php
+
+# Si no está instalado o da error, reinstálalo
+composer remove stripe/stripe-php
+composer require stripe/stripe-php
+
+# Regenerar autoloader
+composer dump-autoload
+
+# Limpiar caché
+php artisan config:clear
+php artisan cache:clear
+
+# Reiniciar el servidor
+php artisan serve
+```
+
+---
+
+### ❌ Error: "Stripe API key configuration issue"
+
+**Síntoma:** El formulario de pago se rompe, no carga, o muestra errores de configuración de Stripe.
+
+**Solución paso a paso:**
 
 #### 1️⃣ Verificar que las claves de Stripe estén configuradas correctamente
 
-Abre el archivo `.env` y verifica que las claves de Stripe estén presentes:
+Abre el archivo `.env` y verifica que las claves de Stripe estén presentes **sin espacios**:
 ```env
 STRIPE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
 STRIPE_SECRET=sk_test_xxxxxxxxxxxxxxxxxxxxxx
 ```
 
-**Importante:** 
-- Las claves **NO** deben tener espacios al inicio ni al final
-- La `STRIPE_KEY` debe empezar con `pk_test_` (o `pk_live_` en producción)
-- La `STRIPE_SECRET` debe empezar con `sk_test_` (o `sk_live_` en producción)
+**Validaciones importantes:**
+- [ ] Las claves **NO** tienen espacios al inicio ni al final
+- [ ] `STRIPE_KEY` empieza con `pk_test_` (modo test) o `pk_live_` (producción)
+- [ ] `STRIPE_SECRET` empieza con `sk_test_` (modo test) o `sk_live_` (producción)
+- [ ] Las claves están completas (51+ caracteres para la secret key)
 
 #### 2️⃣ Limpiar caché de configuración
 
-Laravel puede estar usando configuración antigua en caché:
+Laravel cachea la configuración. Debes limpiarla siempre que modifiques `.env`:
 ```bash
 php artisan config:clear
 php artisan cache:clear
@@ -197,45 +438,161 @@ Si ves errores de encriptación o sesión, necesitas generar la clave de la apli
 php artisan key:generate
 ```
 
-Luego reinicia el servidor:
-```bash
-php artisan serve
-```
+#### 4️⃣ Verificar en el navegador
 
-#### 4️⃣ Verificar permisos de storage
+1. Abre las **Herramientas de Desarrollo** (F12)
+2. Ve a la pestaña **Console**
+3. Busca errores JavaScript relacionados con Stripe
+4. Ve a la pestaña **Network** y busca peticiones a `/create-checkout-session` que fallen
 
-En Windows, normalmente no hay problemas, pero en Linux/Mac:
-```bash
-chmod -R 775 storage bootstrap/cache
-```
-
-#### 5️⃣ Verificar que la base de datos esté correctamente configurada
-
-```bash
-# Ejecutar las migraciones
-php artisan migrate
-
-# Si ya están migradas, verificar
-php artisan migrate:status
-```
-
-#### 6️⃣ Verificar que las claves de Stripe sean válidas
+#### 5️⃣ Verificar que las claves de Stripe sean válidas
 
 Puedes probar las claves directamente en el Dashboard de Stripe:
 - Ve a https://dashboard.stripe.com/test/apikeys
 - Copia las claves de nuevo y reemplázalas en el `.env`
 - **Asegúrate de estar en modo "Test" (no "Live")**
 
-#### 7️⃣ Ver los logs de error
+#### 6️⃣ Reiniciar el servidor completamente
 
-Si sigue fallando, revisa los logs de Laravel para ver el error exacto:
 ```bash
-# En Windows
-type storage\logs\laravel.log | more
+# Detén el servidor (Ctrl+C)
+# Limpia caché nuevamente
+php artisan config:clear
 
-# En Linux/Mac
-tail -f storage/logs/laravel.log
+# Inicia el servidor de nuevo
+php artisan serve
 ```
+
+---
+
+### ❌ Error: "SQLSTATE[HY000] [1045] Access denied for user"
+
+**Síntoma:** No puede conectarse a la base de datos.
+
+**Solución:**
+1. Verifica que MySQL esté ejecutándose
+2. Verifica las credenciales en el archivo `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mangup_db
+DB_USERNAME=root
+DB_PASSWORD=tu_password_real
+```
+3. Asegúrate de que la base de datos `mangup_db` existe:
+```sql
+CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+4. Limpia la configuración:
+```bash
+php artisan config:clear
+```
+
+---
+
+### ❌ Error: "Storage not linked" (Imágenes no se ven)
+
+**Síntoma:** Las imágenes de productos no se muestran o aparecen rotas.
+
+**Solución:**
+```bash
+php artisan storage:link
+```
+
+Esto crea un enlace simbólico desde `public/storage` a `storage/app/public`.
+
+---
+
+### ❌ Error: "npm install" falla
+
+**Síntoma:** Errores al instalar dependencias de Node.js.
+
+**Solución:**
+```bash
+# Eliminar node_modules y package-lock.json
+rm -rf node_modules package-lock.json  # Linux/Mac
+rmdir /s /q node_modules && del package-lock.json  # Windows
+
+# Reinstalar
+npm install
+
+# Si persiste, actualiza npm
+npm install -g npm@latest
+```
+
+---
+
+### ❌ Permisos de storage (Linux/Mac)
+
+**Síntoma:** Errores de permisos al escribir en `storage` o `bootstrap/cache`.
+
+**Solución:**
+```bash
+chmod -R 775 storage bootstrap/cache
+chown -R $USER:www-data storage bootstrap/cache
+```
+
+---
+
+### 🧪 Comandos útiles de diagnóstico
+
+```bash
+# Ver versión de PHP
+php -v
+
+# Ver versión de Composer
+composer -V
+
+# Ver versión de Node.js
+node -v
+
+# Ver extensiones PHP instaladas
+php -m
+
+# Verificar configuración de Laravel
+php artisan about
+
+# Ver rutas disponibles
+php artisan route:list
+
+# Verificar integridad de Stripe
+php test-stripe-api.php
+
+# Limpiar todo el caché
+php artisan optimize:clear
+
+# Ver logs en tiempo real
+tail -f storage/logs/laravel.log  # Linux/Mac
+type storage\logs\laravel.log     # Windows
+```
+
+---
+
+### 💡 Mejores prácticas
+
+1. **Siempre limpia el caché** después de modificar el archivo `.env`:
+   ```bash
+   php artisan config:clear
+   ```
+
+2. **No modifiques archivos en `vendor`:** Si necesitas cambiar algo en una dependencia, usa Composer para ello.
+
+3. **Usa git para rastrear cambios:** Antes de hacer cambios importantes, haz commit de tu trabajo:
+   ```bash
+   git add .
+   git commit -m "Descripción de cambios"
+   ```
+
+4. **Mantén actualizadas las dependencias:**
+   ```bash
+   composer update
+   npm update
+   ```
+
+5. **Usa variables de entorno:** Nunca hardcodees claves API o passwords en el código.
+
+6. **Revisa los logs:** Los logs de Laravel (`storage/logs/laravel.log`) contienen información valiosa sobre errores.
 
 O abre el archivo: `tienda/storage/logs/laravel.log`
 

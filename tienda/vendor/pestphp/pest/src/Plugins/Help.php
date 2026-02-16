@@ -99,7 +99,6 @@ final readonly class Help implements HandlesArguments
     {
         $helpReflection = new PHPUnitHelp;
 
-        // @phpstan-ignore-next-line
         $content = (fn (): array => $this->elements())->call($helpReflection);
 
         $content['Configuration'] = [...[[
@@ -142,9 +141,6 @@ final readonly class Help implements HandlesArguments
         ], [
             'arg' => '--retry',
             'desc' => 'Run non-passing tests first and stop execution upon first error or failure',
-        ], [
-            'arg' => '--dirty',
-            'desc' => 'Only run tests that have uncommitted changes according to Git',
         ], ...$content['Selection']];
 
         $content['Reporting'] = [...$content['Reporting'], ...[

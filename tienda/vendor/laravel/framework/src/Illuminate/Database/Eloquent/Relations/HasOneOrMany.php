@@ -41,6 +41,7 @@ abstract class HasOneOrMany extends Relation
      * @param  TDeclaringModel  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
+     * @return void
      */
     public function __construct(Builder $query, Model $parent, $foreignKey, $localKey)
     {
@@ -153,11 +154,8 @@ abstract class HasOneOrMany extends Relation
         // link them up with their children using the keyed dictionary to make the
         // matching very convenient and easy work. Then we'll just return them.
         foreach ($models as $model) {
-            $key = $this->getDictionaryKey($model->getAttribute($this->localKey));
-
-            if ($key !== null && isset($dictionary[$key])) {
+            if (isset($dictionary[$key = $this->getDictionaryKey($model->getAttribute($this->localKey))])) {
                 $related = $this->getRelationValue($dictionary, $key, $type);
-
                 $model->setRelation($relation, $related);
 
                 // Apply the inverse relation if we have one...
@@ -294,7 +292,7 @@ abstract class HasOneOrMany extends Relation
      */
     public function upsert(array $values, $uniqueBy, $update = null)
     {
-        if (! empty($values) && ! is_array(array_first($values))) {
+        if (! empty($values) && ! is_array(reset($values))) {
             $values = [$values];
         }
 
@@ -440,34 +438,6 @@ abstract class HasOneOrMany extends Relation
     }
 
     /**
-     * Create a Collection of new instances of the related model, allowing mass-assignment.
-     *
-     * @param  iterable  $records
-     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
-     */
-    public function forceCreateMany(iterable $records)
-    {
-        $instances = $this->related->newCollection();
-
-        foreach ($records as $record) {
-            $instances->push($this->forceCreate($record));
-        }
-
-        return $instances;
-    }
-
-    /**
-     * Create a Collection of new instances of the related model, allowing mass-assignment and without raising any events to the parent model.
-     *
-     * @param  iterable  $records
-     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
-     */
-    public function forceCreateManyQuietly(iterable $records)
-    {
-        return Model::withoutEvents(fn () => $this->forceCreateMany($records));
-    }
-
-    /**
      * Set the foreign ID for creating a related model.
      *
      * @param  TRelatedModel  $model
@@ -503,7 +473,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
      * @param  \Illuminate\Database\Eloquent\Builder<TDeclaringModel>  $parentQuery
-     * @param  mixed  $columns
+     * @param  array|mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
      */
     public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
@@ -584,7 +554,7 @@ abstract class HasOneOrMany extends Relation
     {
         $segments = explode('.', $this->getQualifiedForeignKeyName());
 
-        return array_last($segments);
+        return end($segments);
     }
 
     /**

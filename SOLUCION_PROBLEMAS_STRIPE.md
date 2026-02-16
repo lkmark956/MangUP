@@ -229,7 +229,88 @@ php test-stripe.php
 
 ---
 
-## 📞 Si Nada Funciona
+## � Mejores Prácticas para Laravel 12+
+
+### ⚡ Usar API Key por Método (Recomendado)
+
+En Laravel 12+, es mejor **NO** usar `Stripe::setApiKey()` en el constructor del controlador, ya que puede causar problemas con middlewares y estado global.
+
+#### ✅ Configuración Recomendada
+
+**1. Configurar en `config/services.php`:**
+
+```php
+// config/services.php
+'stripe' => [
+    'key' => env('STRIPE_KEY'),
+    'secret' => env('STRIPE_SECRET'),
+    'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+],
+```
+
+**2. Usar la clave directamente en cada método:**
+
+```php
+use Stripe\PaymentIntent;
+use Stripe\Checkout\Session as StripeSession;
+
+public function crearSesion(Request $request)
+{
+    $stripeSecret = config('services.stripe.secret');
+    
+    // Validar que esté configurada
+    if (empty($stripeSecret)) {
+        return response()->json(['error' => 'Stripe no configurado'], 500);
+    }
+    
+    // Pasar la clave como segundo parámetro
+    $session = StripeSession::create(
+        [
+            'payment_method_types' => ['card'],
+            'line_items' => $lineItems,
+            'mode' => 'payment',
+            // ... más opciones
+        ],
+        ['api_key' => $stripeSecret] // 👈 Clave aquí
+    );
+    
+    return response()->json(['id' => $session->id]);
+}
+```
+
+**Ventajas:**
+- ✅ Evita problemas de estado global
+- ✅ Más limpio y explícito
+- ✅ Compatible con testing y mocking
+- ✅ Sigue las convenciones de Laravel moderno
+
+---
+
+## 🚀 Servidor de Desarrollo con PHP Built-in
+
+Si no quieres usar `php artisan serve`, puedes usar el servidor built-in de PHP:
+
+```bash
+# Desde el directorio raíz del proyecto
+cd tienda
+cd public
+
+# Iniciar servidor en puerto 9500
+php -S 127.0.0.1:9500 router.php
+```
+
+Luego accede a: http://127.0.0.1:9500
+
+**Ventajas:**
+- ✅ No requiere Apache/Nginx
+- ✅ Útil para desarrollo rápido
+- ✅ Funciona en cualquier sistema operativo
+
+**Nota:** Para producción, usa siempre Apache, Nginx o similar.
+
+---
+
+## �📞 Si Nada Funciona
 
 1. **Comparte los errores:** Copia el contenido de `storage/logs/laravel.log`
 2. **Comparte el .env (sin las claves completas):**

@@ -8,23 +8,13 @@ use App\Models\Figura;
 use App\Models\Merch;
 use App\Models\Pedido;
 use App\Models\PedidoItem;
-use Stripe\Stripe;
+use Stripe\PaymentIntent;
 use Stripe\Checkout\Session as StripeSession;
 
 class CheckoutController extends Controller
 {
-    public function __construct()
-    {
-        // Validar que las claves de Stripe estén configuradas
-        $stripeSecret = config('stripe.secret');
-        
-        if (empty($stripeSecret)) {
-            \Log::error('STRIPE_SECRET no está configurada en el archivo .env');
-            abort(500, 'Error de configuración: Las claves de Stripe no están configuradas. Por favor, configura STRIPE_KEY y STRIPE_SECRET en tu archivo .env');
-        }
-        
-        Stripe::setApiKey($stripeSecret);
-    }
+    // No necesitamos configurar Stripe en el constructor para Laravel 12+
+    // La clave se pasa directamente en cada llamada a la API
 
     /**
      * Mostrar página de checkout
@@ -115,23 +105,36 @@ class CheckoutController extends Controller
             ];
         }
 
+        // Validar que las claves de Stripe estén configuradas
+        $stripeSecret = config('services.stripe.secret');
+        
+        if (empty($stripeSecret)) {
+            \Log::error('STRIPE_SECRET no está configurada en el archivo .env');
+            return response()->json([
+                'error' => 'Error de configuración: Las claves de Stripe no están configuradas. Por favor, configura STRIPE_KEY y STRIPE_SECRET en tu archivo .env'
+            ], 500);
+        }
+
         try {
             /** @var \Stripe\Checkout\Session $session */
-            $session = StripeSession::create([
-                'payment_method_types' => ['card'],
-                'line_items' => $lineItems,
-                'mode' => 'payment',
-                'success_url' => route('checkout.exito') . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => route('checkout.cancelado'),
-                'locale' => 'es',
-                'metadata' => [
-                    'user_id' => auth()->id() ?? 'guest',
+            $session = StripeSession::create(
+                [
+                    'payment_method_types' => ['card'],
+                    'line_items' => $lineItems,
+                    'mode' => 'payment',
+                    'success_url' => route('checkout.exito') . '?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => route('checkout.cancelado'),
+                    'locale' => 'es',
+                    'metadata' => [
+                        'user_id' => auth()->id() ?? 'guest',
+                    ],
+                    'shipping_address_collection' => [
+                        'allowed_countries' => ['ES', 'PT', 'FR', 'DE', 'IT', 'GB'],
+                    ],
+                    'billing_address_collection' => 'required',
                 ],
-                'shipping_address_collection' => [
-                    'allowed_countries' => ['ES', 'PT', 'FR', 'DE', 'IT', 'GB'],
-                ],
-                'billing_address_collection' => 'required',
-            ]);
+                ['api_key' => $stripeSecret] // 👈 Clave aquí, evita estado global
+            );
 
             return response()->json([
                 'id' => $session->id, // @phpstan-ignore-line
@@ -168,11 +171,22 @@ class CheckoutController extends Controller
         }
 
         try {
+            $stripeSecret = config('services.stripe.secret');
+            
             /** @var \Stripe\Checkout\Session $session */
-            $session = StripeSession::retrieve([
-                'id' => $sessionId,
-                'expand' => ['customer', 'line_items', 'payment_intent']
-            ]);
+            $session = StripeSession::retrieve(
+                $sessionId,
+                ['api_key' => $stripeSecret]
+            );
+            
+            // Expandir datos relacionados
+            $session = StripeSession::retrieve(
+                $sessionId,
+                [
+                    'api_key' => $stripeSecret,
+                    'expand' => ['customer', 'line_items', 'payment_intent']
+                ]
+            );
             
             if ($session->payment_status === 'paid') {
                 // Verificar si ya existe un pedido con este session_id

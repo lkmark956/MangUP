@@ -4,6 +4,20 @@
 
 ---
 
+## ✅ ¿Funcionará en otro PC sin cambios?
+
+**SÍ**, el código está listo para funcionar en cualquier PC. Solo necesitas:
+
+1. ✅ **Código fuente:** Ya está completo en el repositorio
+2. ⚙️ **Configuración local:** Cada persona debe configurar:
+   - Su archivo `.env` con credenciales de MySQL locales
+   - Sus propias claves gratuitas de Stripe (modo test)
+3. 📦 **Dependencias:** Se instalan automáticamente con `composer install`
+
+**No necesitas modificar ningún archivo de código.** Solo sigue la [Guía de Instalación](#-instalación) paso a paso.
+
+---
+
 ## 📋 Requisitos del Sistema
 
 - PHP >= 8.2
@@ -28,6 +42,8 @@ composer install
 npm install
 ```
 
+> **Nota:** `composer install` instalará automáticamente todas las dependencias necesarias, incluyendo la librería `stripe/stripe-php` para procesamiento de pagos.
+
 ### 3. Configurar el entorno
 ```bash
 cp .env.example .env
@@ -42,24 +58,35 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=mangup_db
 DB_USERNAME=root
-DB_PASSWORD=
+DB_PASSWORD=tu_password_mysql
 ```
 
-### 5. Configurar Stripe
-**⚠️ IMPORTANTE:** Para que funcione el sistema de pagos, debes configurar tus claves de Stripe.
+### 5. Configurar Stripe (Sistema de Pagos)
+**⚠️ IMPORTANTE:** Para que funcione el sistema de pagos, debes configurar tus propias claves de Stripe.
 
-1. Crea una cuenta en [Stripe](https://stripe.com)
-2. Obtén tus claves de prueba desde el [Dashboard de Stripe](https://dashboard.stripe.com/test/apikeys)
-3. Edita el archivo `.env` y añade tus claves:
+#### Obtener claves de Stripe:
+1. Crea una cuenta gratuita en [Stripe](https://stripe.com)
+2. Ve al [Dashboard de Stripe (Modo Test)](https://dashboard.stripe.com/test/apikeys)
+3. **Asegúrate de estar en modo "Test"** (esquina superior izquierda)
+4. Copia tu **Publishable key** (empieza con `pk_test_...`)
+5. Copia tu **Secret key** (empieza con `sk_test_...`) - haz clic en "Reveal"
+
+#### Configurar en .env:
+Edita el archivo `.env` y añade tus claves:
 ```env
-
-STRIPE_KEY=pk_test_51SwlqZJGgdOsjWc0lbv1UUT42nj51OCoiV0dDqhbCOtiA7n0Q71gpe2mYd2O80q1VoZ8c88qmlt5s1AsPirUHNmi00y5KdFbLb
-STRIPE_SECRET=sk_test_51SwlqZJGgdOsjWc0fcWJ53BwHnFlYRO3oV1zyv4iS9X5cqCwYP0WGEbpK5saTweq9dgNAluXe2xAAtu8JScI2zA100htbR04LH
+STRIPE_KEY=pk_test_TuClavePublicaAqui
+STRIPE_SECRET=sk_test_TuClaveSecretaAqui
 STRIPE_WEBHOOK_SECRET=
-
 ```
 
-> **Nota:** Las claves que empiezan con `pk_test_` y `sk_test_` son para el entorno de pruebas (modo sandbox). En producción deberás usar las claves reales.
+**Importante:**
+- ✅ Las claves **NO** deben tener espacios al inicio ni al final
+- ✅ `STRIPE_KEY` debe empezar con `pk_test_` (modo prueba)
+- ✅ `STRIPE_SECRET` debe empezar con `sk_test_` (modo prueba)
+- ⚠️ **NUNCA** subas tus claves reales a GitHub
+- 💡 Para producción, usa las claves que empiezan con `pk_live_` y `sk_live_`
+
+> **Nota:** El proyecto usa **Laravel 12+** con configuración moderna de Stripe. Las claves se configuran en `config/services.php` y se pasan como parámetro en cada llamada a la API, evitando problemas de estado global.
 
 ### 6. Crear la base de datos
 En MySQL, crea la base de datos:
@@ -67,34 +94,75 @@ En MySQL, crea la base de datos:
 CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 7. Ejecutar migraciones
-```bash
-php artisan migrate
-```
-
-### 8. Ejecutar seeders (datos de prueba)
-```bash
-php artisan db:seed
-```
-
-### 9. Iniciar el servidor
-### 6. Ejecutar migraciones y seeders
+### 7. Ejecutar migraciones y seeders
 ```bash
 php artisan migrate
 php artisan db:seed
 ```
 
-### 7. Iniciar el servidor
+### 8. Limpiar caché (importante)
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+```
+
+### 9. Compilar assets (opcional)
+```bash
+npm run dev
+```
+
+### 10. Iniciar el servidor
+
+**Opción 1 - Laravel Artisan (recomendado):**
 ```bash
 php artisan serve
 ```
+Accede a: `http://localhost:8000`
 
-La aplicación estará disponible en: `http://localhost:8000`
+**Opción 2 - Servidor PHP built-in:**
+```bash
+cd public
+php -S 127.0.0.1:9500 router.php
+```
+Accede a: `http://127.0.0.1:9500`
+
+### 11. Verificar instalación (Opcional)
+
+Puedes ejecutar este script para verificar que todo está configurado:
+
+```bash
+php test-stripe-api.php
+```
+
+Debería mostrar:
+```
+✅ Clase Stripe\Stripe encontrada
+✅ Clase Stripe\Checkout\Session encontrada
+✅ Clase Stripe\PaymentIntent encontrada
+🎉 Todas las clases de Stripe están disponibles!
+```
 
 ---
 
 ## � Solución de Problemas (Troubleshooting)
+### ❌ Error: "Class 'Stripe\Checkout\Session' not found"
 
+Si al hacer un pago ves el error `Unexpected token '<', "<!DOCTYPE "... is not valid JSON` o `Class "Stripe\Checkout\Session" not found`:
+
+**Solución:**
+```bash
+# Reinstalar la librería de Stripe
+composer remove stripe/stripe-php
+composer require stripe/stripe-php --prefer-dist
+
+# Limpiar caché
+php artisan config:clear
+php artisan cache:clear
+
+# Reiniciar el servidor
+php artisan serve
+```
 ### ❌ "Se rompe al rellenar datos de pago con Stripe"
 
 Si el formulario de pago falla o da errores al intentar pagar, sigue estos pasos:
@@ -196,19 +264,27 @@ DB_PASSWORD=root
 
 ### 📝 Checklist completo para configurar el proyecto
 
-Si acabas de clonar el proyecto, asegúrate de hacer TODO esto:
+**Si acabas de clonar el proyecto en otro PC**, asegúrate de hacer TODO esto en orden:
 
-- [ ] `composer install`
-- [ ] `npm install`
-- [ ] `cp .env.example .env`
-- [ ] `php artisan key:generate`
-- [ ] Configurar `.env` (base de datos + Stripe)
-- [ ] Crear base de datos en MySQL
-- [ ] `php artisan migrate`
-- [ ] `php artisan db:seed`
-- [ ] `php artisan config:clear`
-- [ ] `npm run dev` (o `npm run build` para producción)
-- [ ] `php artisan serve`
+- [ ] **1.** `composer install` → Instala dependencias PHP (incluye Stripe)
+- [ ] **2.** `npm install` → Instala dependencias Node.js
+- [ ] **3.** `cp .env.example .env` → Copia el archivo de configuración
+- [ ] **4.** `php artisan key:generate` → Genera clave de aplicación
+- [ ] **5.** Editar `.env` → Configurar base de datos MySQL
+- [ ] **6.** Editar `.env` → Añadir tus claves de Stripe (obtenerlas de https://dashboard.stripe.com/test/apikeys)
+- [ ] **7.** Crear base de datos `mangup_db` en MySQL
+- [ ] **8.** `php artisan migrate` → Crear tablas
+- [ ] **9.** `php artisan db:seed` → Insertar datos de prueba
+- [ ] **10.** `php artisan config:clear && php artisan cache:clear` → Limpiar caché
+- [ ] **11.** `npm run dev` → Compilar assets (opcional)
+- [ ] **12.** `php artisan serve` → Iniciar servidor
+- [ ] **13.** Acceder a http://localhost:8000 y probar
+
+**⚠️ IMPORTANTE:** Cada persona debe configurar su propio archivo `.env` con:
+- Sus credenciales de MySQL locales
+- Sus propias claves de Stripe (gratuitas en modo test)
+
+El resto del código **SÍ funcionará automáticamente** sin cambios.
 
 ---
 
@@ -325,35 +401,6 @@ Route::patch('/carrito/actualizar/{id}', [CarritoController::class, 'actualizar'
 Route::get('/carrito', [CarritoController::class, 'ver'])->name('carrito.ver');
 ```
 
----
-
-## ✅ Checklist de Tareas Generales
-
-### Nivel Básico (Actual)
-- [x] Configurar base de datos MySQL
-- [x] Crear migraciones para todas las tablas
-- [x] Crear modelos Eloquent con relaciones
-- [x] Crear layout principal con Bootstrap
-- [x] Crear header y footer
-- [ ] **PENDIENTE (Lorenzo):** Seeders de datos
-- [ ] **PENDIENTE (Mario):** Controladores y rutas básicas
-- [ ] **PENDIENTE (Luis):** Vistas y sistema de filtros
-- [ ] **PENDIENTE (Tú):** Panel de administración
-- [ ] **PENDIENTE (Tú):** Sistema de carrito
-- [ ] **PENDIENTE (Tú):** Gestión de stock
-
-### Nivel Intermedio (Próximo)
-- [ ] Autenticación completa de usuarios
-- [ ] Formulario de checkout
-- [ ] Sistema de pedidos
-- [ ] Validaciones avanzadas
-- [ ] Gestión de imágenes con Storage
-
-### Nivel Experto (Futuro)
-- [ ] Formulario de pago (integración Stripe/PayPal)
-- [ ] Panel de usuarios con historial de compras
-- [ ] Sistema de reseñas y calificaciones
-- [ ] Relaciones avanzadas Eloquent
 ---
 
 ## 🎯 Casos de Uso del Sistema
@@ -667,6 +714,60 @@ npm run build       # Producción
 - ✅ **Hashing de contraseñas** con bcrypt
 - ✅ **Autorización por roles** (admin/cliente)
 - ✅ **Validación de stock** antes de permitir compras
+- ✅ **`.env` en .gitignore** - Las claves sensibles NO se suben a Git
+
+---
+
+## 📤 Subir cambios a Git
+
+### ⚠️ ANTES de hacer commit, verifica:
+
+```bash
+# Asegúrate de que .env NO esté incluido
+git status
+
+# Si ves .env en la lista, añádelo al .gitignore
+echo .env >> .gitignore
+```
+
+### ✅ Archivos que SÍ se deben subir:
+- ✅ Todo el código fuente (`app/`, `resources/`, `routes/`, etc.)
+- ✅ `composer.json` y `composer.lock`
+- ✅ `package.json` y `package-lock.json`
+- ✅ `.env.example` (ejemplo de configuración)
+- ✅ `.gitignore`
+- ✅ Migraciones y Seeders
+- ✅ Archivos de configuración (`config/`)
+
+### ❌ Archivos que NO se deben subir:
+- ❌ `.env` (contiene claves secretas)
+- ❌ `/vendor/` (se instala con `composer install`)
+- ❌ `/node_modules/` (se instala con `npm install`)
+- ❌ `/storage/logs/*.log`
+- ❌ `/public/build/` (se genera con `npm run dev`)
+- ❌ IDE config (`.vscode/`, `.idea/`)
+
+El archivo `.gitignore` ya está configurado correctamente para ignorar estos archivos.
+
+### 🚀 Comandos básicos de Git
+
+```bash
+# Ver cambios
+git status
+
+# Añadir todos los cambios
+git add .
+
+# Hacer commit
+git commit -m "Descripción de los cambios"
+
+# Subir a GitHub
+git push origin main
+
+# Verificar que .env NO fue incluido
+git ls-files | grep .env
+# (No debería mostrar nada)
+```
 
 ---
 
@@ -693,16 +794,28 @@ Asegúrate de tener habilitadas las siguientes extensiones en tu `php.ini`:
 - `extension_dir = "ext"` - Directorio de extensiones (Windows)
 
 ### Stripe en Modo Test
-El proyecto está configurado para usar **Stripe en modo test**. Las claves están en el archivo `.env`:
+El proyecto está configurado para usar **Stripe en modo test**. Las claves deben configurarse en el archivo `.env`:
 ```env
-STRIPE_KEY=pk_test_...
-STRIPE_SECRET=sk_test_...
+STRIPE_KEY=pk_test_TuClavePublicaDeStripe
+STRIPE_SECRET=sk_test_TuClaveSecretaDeStripe
+STRIPE_WEBHOOK_SECRET=
 ```
 
-Para probar pagos, usa las tarjetas de prueba de Stripe:
-- **Tarjeta exitosa:** 4242 4242 4242 4242
+**Arquitectura de Stripe (Laravel 12+):**
+- Las claves se cargan desde `config/services.php`
+- Se pasan como parámetro `['api_key' => config('services.stripe.secret')]` en cada llamada
+- Evita problemas de estado global con middlewares
+- Sigue las mejores prácticas de Laravel moderno
+
+**Tarjetas de prueba para testing:**
+- **✅ Pago exitoso:** 4242 4242 4242 4242
+- **❌ Pago rechazado:** 4000 0000 0000 0002
+- **⏳ Requiere autenticación:** 4000 0025 0000 3155
 - **CVC:** Cualquier 3 dígitos
 - **Fecha:** Cualquier fecha futura
+- **Código postal:** Cualquier número
+
+[Ver más tarjetas de prueba](https://docs.stripe.com/testing#cards)
 
 ---
 

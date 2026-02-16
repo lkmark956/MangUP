@@ -8,6 +8,7 @@ use App\Models\Figura;
 use App\Models\Merch;
 use App\Models\Pedido;
 use App\Models\PedidoItem;
+use App\Models\Oferta;
 use Stripe\PaymentIntent;
 use Stripe\Checkout\Session as StripeSession;
 
@@ -18,6 +19,9 @@ class CheckoutController extends Controller
 
     /**
      * Mostrar página de checkout
+     * 
+     * NOTA: Los precios de productos YA incluyen IVA (21%)
+     * El desglose muestra la base imponible y el IVA contenido
      */
     public function index()
     {
@@ -30,13 +34,29 @@ class CheckoutController extends Controller
 
         $productos = $this->obtenerProductosDelCarrito($carrito);
         
-        $subtotal = 0;
-        foreach ($productos as $item) {
-            $subtotal += $item['producto']->precio * $item['cantidad'];
+        // Calcular total aplicando ofertas si existen
+        // Los precios YA incluyen IVA
+        $total = 0;
+        foreach ($productos as &$item) {
+            // Verificar si hay oferta para este producto
+            $ofertaInfo = Oferta::obtenerMejorOferta($item['tipo'], $item['producto']->id, $item['producto']->precio);
+            
+            if ($ofertaInfo) {
+                $item['precio_final'] = $ofertaInfo['precio_final'];
+                $item['oferta_info'] = $ofertaInfo;
+            } else {
+                $item['precio_final'] = $item['producto']->precio;
+                $item['oferta_info'] = null;
+            }
+            
+            $total += $item['precio_final'] * $item['cantidad'];
         }
+        unset($item);
         
-        $impuesto = $subtotal * 0.21;
-        $total = $subtotal + $impuesto;
+        // Calcular desglose de IVA (el precio ya lo incluye)
+        // Fórmula: Base = Total / 1.21, IVA = Total - Base
+        $subtotal = round($total / 1.21, 2); // Base imponible (sin IVA)
+        $impuesto = round($total - $subtotal, 2); // IVA incluido en los precios
 
         return view('checkout.index', [
             'productos' => $productos,
@@ -48,6 +68,8 @@ class CheckoutController extends Controller
 
     /**
      * Crear sesión de pago con Stripe Checkout
+     * 
+     * Los precios enviados a Stripe YA incluyen IVA
      */
     public function crearSesion(Request $request)
     {
@@ -59,8 +81,8 @@ class CheckoutController extends Controller
 
         $productos = $this->obtenerProductosDelCarrito($carrito);
         
-        // Validar stock antes de crear la sesión de pago
-        foreach ($productos as $item) {
+        // Validar stock y calcular precios con ofertas
+        foreach ($productos as &$item) {
             // Para Merch con variante, usar el stock de la variante
             if ($item['tipo'] === 'merch' && isset($item['variante'])) {
                 $stockDisponible = $item['variante']->stock ?? 0;
@@ -77,13 +99,29 @@ class CheckoutController extends Controller
                     'error' => "No hay suficiente stock de '{$nombreProducto}'. Solo quedan {$stockDisponible} unidades."
                 ], 400);
             }
+            
+            // Aplicar oferta si existe
+            $ofertaInfo = Oferta::obtenerMejorOferta($item['tipo'], $item['producto']->id, $item['producto']->precio);
+            if ($ofertaInfo) {
+                $item['precio_final'] = $ofertaInfo['precio_final'];
+                $item['oferta_info'] = $ofertaInfo;
+            } else {
+                $item['precio_final'] = $item['producto']->precio;
+                $item['oferta_info'] = null;
+            }
         }
+        unset($item);
         
         $lineItems = [];
 
         foreach ($productos as $item) {
             $nombreProducto = $item['producto']->nombre;
             $descripcionProducto = ucfirst($item['tipo']) . ' - ' . ($item['producto']->categoria->nombre ?? 'Sin categoría');
+            
+            // Añadir información de oferta a la descripción si existe
+            if (isset($item['oferta_info']) && $item['oferta_info']) {
+                $descripcionProducto .= ' | ' . $item['oferta_info']['oferta']->nombre;
+            }
             
             // Añadir información de variante a la descripción si existe
             if ($item['tipo'] === 'merch' && isset($item['variante'])) {
@@ -92,6 +130,8 @@ class CheckoutController extends Controller
                     ($item['variante']->color->nombre ?? '');
             }
             
+            // Usar precio_final (con oferta aplicada si existe)
+            // El precio ya incluye IVA
             $lineItems[] = [
                 'price_data' => [
                     'currency' => config('stripe.currency', 'eur'),
@@ -99,7 +139,7 @@ class CheckoutController extends Controller
                         'name' => $nombreProducto,
                         'description' => $descripcionProducto,
                     ],
-                    'unit_amount' => (int)($item['producto']->precio * 100),
+                    'unit_amount' => (int)($item['precio_final'] * 100),
                 ],
                 'quantity' => $item['cantidad'],
             ];
@@ -278,18 +318,35 @@ class CheckoutController extends Controller
 
     /**
      * Guardar el pedido en la base de datos
+     * 
+     * Los precios guardados incluyen ofertas aplicadas
+     * El IVA ya está incluido en los precios (se calcula el desglose)
      */
     private function guardarPedido($session, $carrito)
     {
         $productos = $this->obtenerProductosDelCarrito($carrito);
         
-        $subtotal = 0;
-        foreach ($productos as $item) {
-            $subtotal += $item['producto']->precio * $item['cantidad'];
+        // Calcular total con ofertas aplicadas
+        $total = 0;
+        foreach ($productos as &$item) {
+            // Aplicar oferta si existe
+            $ofertaInfo = Oferta::obtenerMejorOferta($item['tipo'], $item['producto']->id, $item['producto']->precio);
+            if ($ofertaInfo) {
+                $item['precio_final'] = $ofertaInfo['precio_final'];
+                $item['oferta_info'] = $ofertaInfo;
+            } else {
+                $item['precio_final'] = $item['producto']->precio;
+                $item['oferta_info'] = null;
+            }
+            
+            $total += $item['precio_final'] * $item['cantidad'];
         }
+        unset($item);
         
-        $impuesto = $subtotal * 0.21;
-        $total = $subtotal + $impuesto;
+        // Calcular desglose de IVA (el precio ya lo incluye)
+        // Fórmula: Base = Total / 1.21, IVA = Total - Base
+        $subtotal = round($total / 1.21, 2); // Base imponible
+        $impuesto = round($total - $subtotal, 2); // IVA incluido
 
         // Formatear dirección de envío
         $direccionEnvio = null;
@@ -360,6 +417,9 @@ class CheckoutController extends Controller
                                       ($item['variante']->color->nombre ?? '');
                 }
                 
+                // Usar precio_final (incluye oferta si aplica)
+                $precioFinal = $item['precio_final'] ?? $item['producto']->precio;
+                
                 PedidoItem::create([
                     'pedido_id' => $pedido->id,
                     'producto_id' => $item['producto']->id,
@@ -367,9 +427,9 @@ class CheckoutController extends Controller
                     'variante_id' => $item['variante_id'] ?? null,
                     'variante_detalle' => $varianteDetalle,
                     'nombre_producto' => $item['producto']->nombre,
-                    'precio_unitario' => $item['producto']->precio,
+                    'precio_unitario' => $precioFinal,
                     'cantidad' => $item['cantidad'],
-                    'subtotal' => $item['producto']->precio * $item['cantidad'],
+                    'subtotal' => $precioFinal * $item['cantidad'],
                 ]);
             }
         }

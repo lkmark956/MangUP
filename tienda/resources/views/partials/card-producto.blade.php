@@ -12,6 +12,17 @@
                 {{ ucfirst($producto->tipo ?? 'manga') }}
             </span>
             
+            {{-- Badge de oferta --}}
+            @if(isset($producto->oferta_info) && $producto->oferta_info)
+                <span class="offer-tag">
+                    @if($producto->oferta_info['oferta']->tipo_descuento === 'porcentaje')
+                        -{{ $producto->oferta_info['oferta']->valor_descuento }}%
+                    @else
+                        -{{ number_format($producto->oferta_info['oferta']->valor_descuento, 2) }}€
+                    @endif
+                </span>
+            @endif
+            
             {{-- Stock badge --}}
             @if(isset($producto->stock) && $producto->stock <= 5 && $producto->stock > 0)
                 <span class="stock-badge low">¡Últimas {{ $producto->stock }}!</span>
@@ -29,7 +40,14 @@
             <h3 class="product-name">{{ $producto->nombre }}</h3>
             
             <div class="product-price-row">
-                <span class="product-price">{{ number_format($producto->precio, 2) }}€</span>
+                @if(isset($producto->oferta_info) && $producto->oferta_info)
+                    <div class="price-with-offer">
+                        <span class="old-price">{{ number_format($producto->oferta_info['precio_original'], 2) }}€</span>
+                        <span class="new-price">{{ number_format($producto->oferta_info['precio_final'], 2) }}€</span>
+                    </div>
+                @else
+                    <span class="product-price">{{ number_format($producto->precio, 2) }}€</span>
+                @endif
                 
                 @if(isset($producto->stock) && $producto->stock > 0)
                     <span class="product-stock available">

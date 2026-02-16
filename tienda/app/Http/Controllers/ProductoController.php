@@ -10,6 +10,7 @@ use App\Models\Merch;
 use App\Models\CategoriaManga;
 use App\Models\CategoriaFigura;
 use App\Models\CategoriaMerch;
+use App\Models\Oferta;
 
 class ProductoController extends Controller
 {
@@ -155,6 +156,8 @@ class ProductoController extends Controller
         if ($mostrarManga) {
             $mangas = $mangasQuery->with('imagenes')->get()->map(function ($item) {
                 $item->tipo = 'manga';
+                // Calcular oferta para el producto
+                $item->oferta_info = Oferta::obtenerMejorOferta('manga', $item->id, $item->precio);
                 return $item;
             });
         }
@@ -162,6 +165,8 @@ class ProductoController extends Controller
         if ($mostrarFigura) {
             $figuras = $figurasQuery->with('imagenes')->get()->map(function ($item) {
                 $item->tipo = 'figura';
+                // Calcular oferta para el producto
+                $item->oferta_info = Oferta::obtenerMejorOferta('figura', $item->id, $item->precio);
                 return $item;
             });
         }
@@ -169,12 +174,21 @@ class ProductoController extends Controller
         if ($mostrarMerch) {
             $merchs = $merchsQuery->with('imagenes')->get()->map(function ($item) {
                 $item->tipo = 'merch';
+                // Calcular oferta para el producto
+                $item->oferta_info = Oferta::obtenerMejorOferta('merch', $item->id, $item->precio);
                 return $item;
             });
         }
 
         // Combinar todos los productos
         $todosProductos = $mangas->concat($figuras)->concat($merchs);
+        
+        // Filtrar solo productos con oferta si está activado
+        if ($request->filled('solo_ofertas') && $request->solo_ofertas) {
+            $todosProductos = $todosProductos->filter(function ($producto) {
+                return $producto->oferta_info !== null;
+            });
+        }
 
         // Aplicar ordenamiento
         if ($request->filled('ordenar')) {
@@ -283,6 +297,9 @@ class ProductoController extends Controller
                 ->get();
         }
 
-        return view('productos.show', compact('producto', 'tipo', 'productosRelacionados'));
+        // Buscar oferta aplicable para el producto
+        $ofertaInfo = Oferta::obtenerMejorOferta($producto->tipo, $producto->id, $producto->precio);
+
+        return view('productos.show', compact('producto', 'tipo', 'productosRelacionados', 'ofertaInfo'));
     }
 }

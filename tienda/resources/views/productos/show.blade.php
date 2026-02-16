@@ -62,7 +62,22 @@
 
                 {{-- Precio --}}
                 <div class="detail-price">
-                    <span class="price-value">{{ number_format($producto->precio, 2) }}€</span>
+                    @if(isset($ofertaInfo) && $ofertaInfo)
+                        <div class="offer-badge">
+                            <i class="bi bi-tag-fill"></i>
+                            {{ $ofertaInfo['oferta']->nombre }}
+                            @if($ofertaInfo['oferta']->tipo_descuento === 'porcentaje')
+                                - {{ $ofertaInfo['oferta']->valor_descuento }}% OFF
+                            @else
+                                - {{ number_format($ofertaInfo['oferta']->valor_descuento, 2) }}€ OFF
+                            @endif
+                        </div>
+                        <span class="price-original">{{ number_format($ofertaInfo['precio_original'], 2) }}€</span>
+                        <span class="price-value price-discount">{{ number_format($ofertaInfo['precio_final'], 2) }}€</span>
+                        <span class="price-savings">¡Ahorras {{ number_format($ofertaInfo['ahorro'], 2) }}€!</span>
+                    @else
+                        <span class="price-value">{{ number_format($producto->precio, 2) }}€</span>
+                    @endif
                     <span class="price-tax">IVA incluido</span>
                 </div>
 

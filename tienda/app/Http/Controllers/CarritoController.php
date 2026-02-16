@@ -6,27 +6,45 @@ use Illuminate\Http\Request;
 use App\Models\Manga;
 use App\Models\Figura;
 use App\Models\Merch;
+use App\Models\Oferta;
 
 class CarritoController extends Controller
 {
     /**
      * Mostrar el carrito
+     * 
+     * NOTA: Los precios de productos YA incluyen IVA (21%)
+     * El desglose se calcula para mostrar la base imponible
      */
     public function index()
     {
         $carrito = session()->get('carrito', []);
         $productos = $this->obtenerProductosDelCarrito($carrito);
         
-        $subtotal = 0;
-        $impuesto = 0;
+        // El total es la suma de precios (que ya incluyen IVA)
+        // También aplicamos ofertas si existen
+        $total = 0;
         
-        foreach ($productos as $item) {
-            $subtotal += $item['producto']->precio * $item['cantidad'];
+        foreach ($productos as &$item) {
+            // Verificar si hay oferta para este producto
+            $ofertaInfo = Oferta::obtenerMejorOferta($item['tipo'], $item['producto']->id, $item['producto']->precio);
+            
+            if ($ofertaInfo) {
+                $item['precio_final'] = $ofertaInfo['precio_final'];
+                $item['oferta_info'] = $ofertaInfo;
+            } else {
+                $item['precio_final'] = $item['producto']->precio;
+                $item['oferta_info'] = null;
+            }
+            
+            $total += $item['precio_final'] * $item['cantidad'];
         }
+        unset($item); // Romper la referencia
         
-        // Calcular impuesto (21% IVA)
-        $impuesto = $subtotal * 0.21;
-        $total = $subtotal + $impuesto;
+        // Calcular desglose de IVA (el precio ya lo incluye)
+        // Fórmula: Base = Total / 1.21, IVA = Total - Base
+        $subtotal = round($total / 1.21, 2); // Base imponible
+        $impuesto = round($total - $subtotal, 2); // IVA incluido
         
         return view('carrito.index', [
             'productos' => $productos,

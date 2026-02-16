@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\FiguraController as AdminFiguraController;
 use App\Http\Controllers\Admin\MerchController as AdminMerchController;
 use App\Http\Controllers\Admin\CategoriaController as AdminCategoriaController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\PedidoController as AdminPedidoController;
+use App\Http\Controllers\Admin\OfertaController as AdminOfertaController;
 use App\Models\Manga;
 use App\Models\Figura;
 use App\Models\Merch;
@@ -171,4 +173,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('usuarios/{usuario}', [AdminUserController::class, 'update'])->name('usuarios.update');
     Route::patch('usuarios/{usuario}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('usuarios.toggle-admin');
     Route::delete('usuarios/{usuario}', [AdminUserController::class, 'destroy'])->name('usuarios.destroy');
+    
+    // ==========================================
+    // Gestión de Pedidos
+    // ==========================================
+    Route::get('pedidos', [AdminPedidoController::class, 'index'])->name('pedidos.index');
+    Route::get('pedidos/{pedido}', [AdminPedidoController::class, 'show'])->name('pedidos.show');
+    Route::patch('pedidos/{pedido}/estado', [AdminPedidoController::class, 'updateEstado'])->name('pedidos.updateEstado');
+    
+    // ==========================================
+    // Gestión de Ofertas
+    // ==========================================
+    Route::resource('ofertas', AdminOfertaController::class);
 });

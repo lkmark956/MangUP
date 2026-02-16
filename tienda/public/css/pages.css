@@ -1559,6 +1559,18 @@
     color: var(--color-primary);
 }
 
+/* Estilos de precio con descuento en carrito */
+.price-original-small {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.price-value.price-discount {
+    color: #e53935 !important;
+    font-weight: 700;
+}
+
 /* Control de cantidad */
 .cart-item-qty-section {
     display: flex;

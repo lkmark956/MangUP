@@ -289,3 +289,82 @@
 .product-card-add-btn.added i::before {
     content: "\F26B"; /* bi-check-lg */
 }
+
+/* ==========================================
+   Offer Styles
+   ========================================== */
+.offer-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    animation: pulse-offer 2s infinite;
+}
+
+.offer-badge i {
+    margin-right: 5px;
+}
+
+@keyframes pulse-offer {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+.price-original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1.1rem;
+    margin-right: 10px;
+}
+
+.price-discount {
+    color: #e53935 !important;
+    font-weight: 700;
+}
+
+.price-savings {
+    display: block;
+    color: #4caf50;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+/* Product card offer badges */
+.product-card .offer-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 2;
+}
+
+.product-card .price-with-offer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.product-card .old-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.product-card .new-price {
+    color: #e53935;
+    font-weight: 700;
+}

@@ -59,7 +59,16 @@
                                 </div>
                             </div>
                             <div class="checkout-item-price text-end">
-                                <strong>{{ number_format($item['producto']->precio * $item['cantidad'], 2) }}€</strong>
+                                @php
+                                    $precioCheckout = isset($item['precio_final']) ? $item['precio_final'] : $item['producto']->precio;
+                                @endphp
+                                @if(isset($item['oferta_info']) && $item['oferta_info'])
+                                    <small class="text-muted text-decoration-line-through d-block">{{ number_format($item['producto']->precio * $item['cantidad'], 2) }}€</small>
+                                    <strong class="text-success">{{ number_format($precioCheckout * $item['cantidad'], 2) }}€</strong>
+                                    <small class="text-success d-block">{{ $item['oferta_info']['oferta']->nombre }}</small>
+                                @else
+                                    <strong>{{ number_format($precioCheckout * $item['cantidad'], 2) }}€</strong>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -119,11 +128,11 @@
                 </div>
                 <div class="card-body">
                     <div class="summary-row d-flex justify-content-between mb-2">
-                        <span>Subtotal</span>
+                        <span>Base imponible</span>
                         <span>{{ number_format($subtotal, 2) }}€</span>
                     </div>
                     <div class="summary-row d-flex justify-content-between mb-2">
-                        <span>IVA (21%)</span>
+                        <span>IVA incluido (21%)</span>
                         <span>{{ number_format($impuesto, 2) }}€</span>
                     </div>
                     <div class="summary-row d-flex justify-content-between mb-2">
@@ -132,7 +141,7 @@
                     </div>
                     <hr>
                     <div class="summary-total d-flex justify-content-between mb-4">
-                        <strong class="fs-5">Total</strong>
+                        <strong class="fs-5">Total (IVA incl.)</strong>
                         <strong class="fs-4 text-primary">{{ number_format($total, 2) }}€</strong>
                     </div>
 

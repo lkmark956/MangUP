@@ -70,7 +70,12 @@
                             <!-- Precio unitario -->
                             <div class="cart-item-unit-price">
                                 <span class="price-label">Precio</span>
-                                <span class="price-value">{{ number_format($item['producto']->precio, 2) }}€</span>
+                                @if(isset($item['oferta_info']) && $item['oferta_info'])
+                                    <span class="price-original-small">{{ number_format($item['producto']->precio, 2) }}€</span>
+                                    <span class="price-value price-discount">{{ number_format($item['precio_final'], 2) }}€</span>
+                                @else
+                                    <span class="price-value">{{ number_format($item['producto']->precio, 2) }}€</span>
+                                @endif
                             </div>
 
                             <!-- Control de cantidad -->
@@ -100,7 +105,10 @@
                             <!-- Total del item -->
                             <div class="cart-item-subtotal">
                                 <span class="subtotal-label">Subtotal</span>
-                                <span class="subtotal-value">{{ number_format($item['producto']->precio * $item['cantidad'], 2) }}€</span>
+                                @php
+                                    $precioItem = isset($item['precio_final']) ? $item['precio_final'] : $item['producto']->precio;
+                                @endphp
+                                <span class="subtotal-value">{{ number_format($precioItem * $item['cantidad'], 2) }}€</span>
                             </div>
 
                             <!-- Botón eliminar -->
@@ -140,11 +148,11 @@
                     </h4>
 
                     <div class="summary-item">
-                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-label">Base imponible</span>
                         <span class="summary-value">{{ number_format($subtotal, 2) }}€</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Impuesto (IVA 21%)</span>
+                        <span class="summary-label">IVA incluido (21%)</span>
                         <span class="summary-value">{{ number_format($impuesto, 2) }}€</span>
                     </div>
                     <div class="summary-item">
@@ -153,7 +161,7 @@
                     </div>
 
                     <div class="summary-item total">
-                        <span class="summary-label">Total</span>
+                        <span class="summary-label">Total (IVA incl.)</span>
                         <span class="summary-value">{{ number_format($total, 2) }}€</span>
                     </div>
 
@@ -174,10 +182,13 @@
                         
                         <div class="items-list">
                             @foreach($productos as $item)
+                                @php
+                                    $precioItemResumen = isset($item['precio_final']) ? $item['precio_final'] : $item['producto']->precio;
+                                @endphp
                                 <div class="item-summary">
                                     <span class="item-summary-name">{{ $item['producto']->nombre }}</span>
                                     <span class="item-summary-qty text-muted">x{{ $item['cantidad'] }}</span>
-                                    <span class="item-summary-price">{{ number_format($item['producto']->precio * $item['cantidad'], 2) }}€</span>
+                                    <span class="item-summary-price">{{ number_format($precioItemResumen * $item['cantidad'], 2) }}€</span>
                                 </div>
                             @endforeach
                         </div>

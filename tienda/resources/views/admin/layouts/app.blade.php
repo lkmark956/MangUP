@@ -76,6 +76,18 @@
                 <span>Usuarios</span>
             </a>
             
+            <div class="admin-nav-section">Ventas</div>
+            
+            <a href="{{ route('admin.pedidos.index') }}" class="admin-nav-link {{ request()->routeIs('admin.pedidos.*') ? 'active' : '' }}">
+                <i class="bi bi-receipt"></i>
+                <span>Pedidos</span>
+            </a>
+            
+            <a href="{{ route('admin.ofertas.index') }}" class="admin-nav-link {{ request()->routeIs('admin.ofertas.*') ? 'active' : '' }}">
+                <i class="bi bi-tag"></i>
+                <span>Ofertas</span>
+            </a>
+            
             <div class="admin-nav-section">Acciones</div>
             
             <a href="{{ route('home') }}" class="admin-nav-link" target="_blank">

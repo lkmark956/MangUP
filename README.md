@@ -75,10 +75,7 @@ Accede a: http://localhost:8000
 ---
 
 ## Configuración de Stripe
-
-1. Regístrate en [stripe.com](https://stripe.com)
-2. Ve a [Dashboard > API Keys](https://dashboard.stripe.com/test/apikeys) (modo Test)
-3. Copia las claves en `.env`:
+Copia las claves en `.env`:
 
 ```env
 STRIPE_KEY=pk_test_51SwlqZJGgdOsjWc0lbv1UUT42nj51OCoiV0dDqhbCOtiA7n0Q71gpe2mYd2O80q1VoZ8c88qmlt5s1AsPirUHNmi00y5KdFbLb

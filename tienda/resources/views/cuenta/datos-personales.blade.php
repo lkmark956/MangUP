@@ -14,7 +14,7 @@
 
     <div class="row">
         {{-- Sidebar --}}
-        <div class="col-lg-3 col-md-4 mb-4">
+        <div class="col-lg-3 col-md-4 mb-4" id="sidebarCuenta">
             <div class="list-group sticky-top" style="top: 100px;">
                 <a href="{{ route('cuenta.datos-personales') }}" class="list-group-item list-group-item-action active">
                     <i class="bi bi-person me-2"></i>Datos personales
@@ -29,7 +29,7 @@
         </div>
 
         {{-- Contenido Principal --}}
-        <div class="col-lg-9 col-md-8">
+        <div class="col-lg-9 col-md-8" id="mainContent">
             {{-- Formulario de Datos Personales --}}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-bottom">
@@ -231,15 +231,17 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- Modal para ver foto de perfil en grande --}}
-            <div class="modal fade" id="photoModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow-lg">
-                        <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" style="top: 10px; right: 10px; z-index: 1;"></button>
-                        <div class="modal-body p-4 text-center">
-                            <img id="photoModalImage" src="" alt="Foto de perfil" class="img-fluid rounded" style="max-width: 100%; max-height: 600px; object-fit: contain;">
-                        </div>
+    {{-- Modal para ver foto de perfil en grande --}}
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" style="top: 15px; right: 15px; z-index: 1051;"></button>
+                <div class="modal-body p-0 text-center">
+                    <div class="position-relative" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                        <img id="photoModalImage" src="" alt="Foto de perfil" class="img-fluid rounded-3" style="max-width: 95%; max-height: 500px; object-fit: cover; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
                     </div>
                 </div>
             </div>
@@ -286,6 +288,19 @@
         font-size: 2.5rem;
         font-weight: bold;
     }
+
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+
+    #mainContent.dimmed {
+        opacity: 0.5;
+    }
+
+    #sidebarCuenta.dimmed {
+        opacity: 0.5;
+    }
+
 </style>
 @endpush
 
@@ -339,6 +354,19 @@
             const modal = new bootstrap.Modal(document.getElementById('photoModal'));
             modal.show();
         }
+    }
+
+    // Manejo del backdrop suave para la modal de foto
+    const photoModal = document.getElementById('photoModal');
+    if (photoModal) {
+        photoModal.addEventListener('show.bs.modal', function() {
+            document.getElementById('mainContent').classList.add('dimmed');
+            document.getElementById('sidebarCuenta').classList.add('dimmed');
+        });
+        photoModal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('mainContent').classList.remove('dimmed');
+            document.getElementById('sidebarCuenta').classList.remove('dimmed');
+        });
     }
 </script>
 @endpush

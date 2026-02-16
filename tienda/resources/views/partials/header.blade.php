@@ -41,9 +41,13 @@
                     {{-- User Dropdown --}}
                     <div class="user-dropdown">
                         <div class="user-dropdown-toggle">
-                            <div class="user-avatar">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                            </div>
+                            @if(Auth::user()->foto_perfil)
+                                <img src="{{ asset(Auth::user()->foto_perfil) }}" alt="{{ Auth::user()->name }}" class="user-avatar-img">
+                            @else
+                                <div class="user-avatar">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </div>
+                            @endif
                             <span class="user-name d-none d-lg-inline">{{ Str::limit(Auth::user()->name, 10) }}</span>
                             <i class="bi bi-chevron-down d-none d-lg-inline" style="font-size: 0.7rem;"></i>
                         </div>

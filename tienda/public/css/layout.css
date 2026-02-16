@@ -171,6 +171,14 @@
     font-size: var(--font-size-sm);
 }
 
+.user-avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-circle);
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+}
+
 .user-name {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);

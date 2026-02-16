@@ -30,26 +30,6 @@
 
         {{-- Contenido Principal --}}
         <div class="col-lg-9 col-md-8">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle me-2"></i>
-                    <strong>Por favor corrige los siguientes errores:</strong>
-                    <ul class="mb-0 mt-2">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
             {{-- Formulario de Datos Personales --}}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-bottom">
@@ -58,9 +38,42 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('cuenta.actualizar-datos') }}" method="POST">
+                    <form action="{{ route('cuenta.actualizar-datos') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+
+                        {{-- Foto de Perfil --}}
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-image me-2"></i>Foto de Perfil
+                            </label>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="profile-photo-preview" onclick="openPhotoModal()" style="cursor: pointer;">
+                                    @if($user->foto_perfil)
+                                        <img src="{{ asset($user->foto_perfil) }}" alt="Foto de perfil" id="preview-image">
+                                    @else
+                                        <div class="profile-placeholder" id="preview-placeholder">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
+                                        <img src="" alt="Vista previa" id="preview-image" style="display: none;">
+                                    @endif
+                                </div>
+                                <div class="flex-grow-1">
+                                    <input type="file" 
+                                           class="form-control @error('foto_perfil') is-invalid @enderror" 
+                                           id="foto_perfil" 
+                                           name="foto_perfil"
+                                           accept="image/*"
+                                           onchange="previewProfileImage(event)">
+                                    @error('foto_perfil')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="form-text text-muted d-block mt-1">
+                                        Formatos: JPG, PNG, GIF. Tamaño máximo: 2MB
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
 
                         {{-- Nombre --}}
                         <div class="mb-3">
@@ -218,6 +231,18 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Modal para ver foto de perfil en grande --}}
+            <div class="modal fade" id="photoModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg">
+                        <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" style="top: 10px; right: 10px; z-index: 1;"></button>
+                        <div class="modal-body p-4 text-center">
+                            <img id="photoModalImage" src="" alt="Foto de perfil" class="img-fluid rounded" style="max-width: 100%; max-height: 600px; object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -227,6 +252,39 @@
     .list-group-item.active {
         background-color: var(--bs-primary);
         border-color: var(--bs-primary);
+    }
+    
+    .profile-photo-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3px solid #ddd;
+        flex-shrink: 0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .profile-photo-preview:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .profile-photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .profile-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #E76F00 0%, #FFB800 100%);
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
     }
 </style>
 @endpush
@@ -250,6 +308,38 @@
             }
         });
     });
+    
+    // Vista previa de la foto de perfil
+    function previewProfileImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImage = document.getElementById('preview-image');
+                const placeholder = document.getElementById('preview-placeholder');
+                
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    // Abrir modal para ver foto en grande
+    function openPhotoModal() {
+        const previewImage = document.getElementById('preview-image');
+        const imageSrc = previewImage.src;
+        
+        // Solo abre el modal si hay una imagen
+        if (imageSrc && imageSrc !== '') {
+            document.getElementById('photoModalImage').src = imageSrc;
+            const modal = new bootstrap.Modal(document.getElementById('photoModal'));
+            modal.show();
+        }
+    }
 </script>
 @endpush
 

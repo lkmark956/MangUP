@@ -55,7 +55,7 @@ cp .env.example .env     # Linux/Mac
 php artisan key:generate
 
 # Configurar base de datos en MySQL
-# CREATE DATABASE mangup_db;
+# CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # Editar .env con credenciales de MySQL y Stripe
 

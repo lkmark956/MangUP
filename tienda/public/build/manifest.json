@@ -1,11 +1,20 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-CN7VBkvP.css",
+    "file": "assets/app-3k7zssIM.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
     "names": [
       "app.css"
+    ]
+  },
+  "resources/css/custom.css": {
+    "file": "assets/custom-bQLUkoC5.css",
+    "src": "resources/css/custom.css",
+    "isEntry": true,
+    "name": "custom",
+    "names": [
+      "custom.css"
     ]
   },
   "resources/css/games-list.css": {

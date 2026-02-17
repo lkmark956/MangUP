@@ -60,6 +60,20 @@ class CarritoController extends Controller
      */
     public function agregar(Request $request)
     {
+        // Verificar si el usuario está autenticado
+        if (!auth()->check()) {
+            // Guardar el producto pendiente en sesión
+            session()->put('producto_pendiente_carrito', [
+                'id' => $request->id,
+                'tipo' => $request->tipo,
+                'cantidad' => $request->cantidad,
+                'variante_id' => $request->variante_id ?? null
+            ]);
+            
+            return redirect()->route('login')
+                ->with('info', 'Debes iniciar sesión para agregar productos al carrito');
+        }
+
         $request->validate([
             'id' => 'required|integer',
             'tipo' => 'required|in:manga,figura,merch',

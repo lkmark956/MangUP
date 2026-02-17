@@ -35,6 +35,35 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
+            // Verificar si hay un producto pendiente para agregar al carrito
+            if ($request->session()->has('producto_pendiente_carrito')) {
+                $productoPendiente = $request->session()->get('producto_pendiente_carrito');
+                
+                // Agregar el producto al carrito
+                $carrito = $request->session()->get('carrito', []);
+                $clave = $productoPendiente['tipo'] === 'merch' && $productoPendiente['variante_id'] 
+                    ? "{$productoPendiente['tipo']}_{$productoPendiente['id']}_{$productoPendiente['variante_id']}"
+                    : "{$productoPendiente['tipo']}_{$productoPendiente['id']}";
+                
+                if (isset($carrito[$clave])) {
+                    $carrito[$clave]['cantidad'] += $productoPendiente['cantidad'];
+                } else {
+                    $carrito[$clave] = [
+                        'id' => $productoPendiente['id'],
+                        'tipo' => $productoPendiente['tipo'],
+                        'cantidad' => $productoPendiente['cantidad'],
+                        'variante_id' => $productoPendiente['variante_id'] ?? null
+                    ];
+                }
+                
+                $request->session()->put('carrito', $carrito);
+                $request->session()->forget('producto_pendiente_carrito');
+                
+                // Redirigir al carrito
+                return redirect()->route('carrito.index')
+                    ->with('success', '¡Bienvenido de nuevo, ' . Auth::user()->name . '! Tu producto ha sido agregado al carrito.');
+            }
+
             // Redirigir a la página anterior o al home
             return redirect()->intended(route('home'))
                 ->with('success', '¡Bienvenido de nuevo, ' . Auth::user()->name . '!');

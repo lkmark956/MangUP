@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'escuela/sistema-gestion',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '729089f8f6d8136aed056dd386835cd61cc6b308',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -104,9 +104,9 @@
             'dev_requirement' => false,
         ),
         'escuela/sistema-gestion' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '729089f8f6d8136aed056dd386835cd61cc6b308',
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -419,6 +419,48 @@ flowchart TD
 
 ---
 
+## Solución de Problemas
+
+### Error: "Failed to open stream" al crear sesión de pago con Stripe
+
+**Error completo:**
+```
+include(C:\Users\...\tienda\vendor\composer/../stripe/stripe-php/lib/Checkout/Session.php): 
+Failed to open stream: No such file or directory
+```
+
+**Causa:** La carpeta `vendor` está corrupta o los archivos de Stripe no se instalaron correctamente.
+
+**Solución:**
+
+```bash
+# Navegar a la carpeta tienda
+cd tienda
+
+# Eliminar carpeta vendor corrupta
+Remove-Item -Recurse -Force vendor
+
+# Reinstalar todas las dependencias
+composer install
+
+# Regenerar autoloader
+composer dump-autoload
+```
+
+**Verificación:**
+```bash
+# Comprobar que Stripe está instalado correctamente
+composer show stripe/stripe-php
+
+# Verificar que existe el archivo Session.php
+Test-Path "vendor\stripe\stripe-php\lib\Checkout\Session.php"
+# Debe devolver: True
+```
+
+Después de esto, la pasarela de Stripe debería funcionar correctamente.
+
+---
+
 ## Licencia
 
 Proyecto educativo - 2º Trimestre Optativa

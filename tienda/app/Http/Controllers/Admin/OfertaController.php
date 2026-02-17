@@ -58,20 +58,18 @@ class OfertaController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'tipo_descuento' => 'required|in:porcentaje,cantidad_fija',
-            'valor_descuento' => 'required|numeric|min:0.01',
+            'tipo_descuento' => 'required|in:porcentaje',
+            'valor_descuento' => 'required|numeric|min:0.01|max:85',
             'aplica_a' => 'required|in:todos,manga,figura,merch,producto_especifico',
             'producto_id' => 'required_if:aplica_a,producto_especifico|nullable|integer',
             'tipo_producto' => 'required_if:aplica_a,producto_especifico|nullable|in:manga,figura,merch',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
             'activa' => 'boolean',
+        ], [
+            'tipo_descuento.in' => 'Solo se permiten descuentos por porcentaje.',
+            'valor_descuento.max' => 'El descuento no puede ser superior al 85%.',
         ]);
-        
-        // Validación adicional para porcentaje
-        if ($validated['tipo_descuento'] === 'porcentaje' && $validated['valor_descuento'] > 100) {
-            return back()->withErrors(['valor_descuento' => 'El porcentaje no puede ser mayor a 100%'])->withInput();
-        }
         
         $validated['activa'] = $request->has('activa');
         
@@ -115,20 +113,18 @@ class OfertaController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'tipo_descuento' => 'required|in:porcentaje,cantidad_fija',
-            'valor_descuento' => 'required|numeric|min:0.01',
+            'tipo_descuento' => 'required|in:porcentaje',
+            'valor_descuento' => 'required|numeric|min:0.01|max:85',
             'aplica_a' => 'required|in:todos,manga,figura,merch,producto_especifico',
             'producto_id' => 'required_if:aplica_a,producto_especifico|nullable|integer',
             'tipo_producto' => 'required_if:aplica_a,producto_especifico|nullable|in:manga,figura,merch',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
             'activa' => 'boolean',
+        ], [
+            'tipo_descuento.in' => 'Solo se permiten descuentos por porcentaje.',
+            'valor_descuento.max' => 'El descuento no puede ser superior al 85%.',
         ]);
-        
-        // Validación adicional para porcentaje
-        if ($validated['tipo_descuento'] === 'porcentaje' && $validated['valor_descuento'] > 100) {
-            return back()->withErrors(['valor_descuento' => 'El porcentaje no puede ser mayor a 100%'])->withInput();
-        }
         
         $validated['activa'] = $request->has('activa');
         

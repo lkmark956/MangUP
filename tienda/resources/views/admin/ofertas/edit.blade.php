@@ -59,20 +59,17 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Tipo de Descuento <span class="text-danger">*</span></label>
-                                    <select name="tipo_descuento" class="form-select @error('tipo_descuento') is-invalid @enderror" required>
-                                        <option value="porcentaje" {{ old('tipo_descuento', $oferta->tipo_descuento) == 'porcentaje' ? 'selected' : '' }}>Porcentaje (%)</option>
-                                        <option value="cantidad_fija" {{ old('tipo_descuento', $oferta->tipo_descuento) == 'cantidad_fija' ? 'selected' : '' }}>Cantidad Fija (€)</option>
-                                    </select>
-                                    @error('tipo_descuento')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <input type="text" class="form-control" value="Porcentaje (%)" disabled>
+                                    <input type="hidden" name="tipo_descuento" value="porcentaje">
+                                    <small class="text-muted">Solo se permiten descuentos por porcentaje</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Valor del Descuento <span class="text-danger">*</span></label>
+                                    <label class="form-label">Porcentaje de Descuento (%) <span class="text-danger">*</span></label>
                                     <input type="number" name="valor_descuento" class="form-control @error('valor_descuento') is-invalid @enderror" 
-                                           value="{{ old('valor_descuento', $oferta->valor_descuento) }}" required step="0.01" min="0.01" placeholder="Ej: 10">
+                                           value="{{ old('valor_descuento', $oferta->valor_descuento) }}" required step="0.01" min="0.01" max="85" placeholder="Ej: 10">
+                                    <small class="text-muted">Máximo: 85%</small>
                                     @error('valor_descuento')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

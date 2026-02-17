@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->text('descripcion')->nullable();
-            $table->enum('tipo_descuento', ['porcentaje', 'cantidad_fija'])->default('porcentaje');
-            $table->decimal('valor_descuento', 10, 2);
+            $table->enum('tipo_descuento', ['porcentaje'])->default('porcentaje');
+            $table->decimal('valor_descuento', 10, 2); // Máximo 85%
             $table->enum('aplica_a', ['todos', 'manga', 'figura', 'merch', 'producto_especifico'])->default('todos');
             $table->unsignedBigInteger('producto_id')->nullable();
             $table->string('tipo_producto')->nullable(); // manga, figura, merch

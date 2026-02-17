@@ -9,6 +9,10 @@ class Oferta extends Model
 {
     use HasFactory;
 
+    // Restricciones de ofertas
+    protected const TIPO_DESCUENTO_PERMITIDO = 'porcentaje';
+    protected const DESCUENTO_MAXIMO = 85;
+
     protected $fillable = [
         'nombre',
         'descripcion',
@@ -53,15 +57,21 @@ class Oferta extends Model
 
     /**
      * Calcular el precio con descuento
+     * 
+     * Las ofertas solo pueden ser:
+     * - Por porcentaje (no cantidad fija)
+     * - Máximo 85% de descuento
      */
     public function calcularPrecioConDescuento(float $precioOriginal): float
     {
-        if ($this->tipo_descuento === 'porcentaje') {
-            return $precioOriginal - ($precioOriginal * $this->valor_descuento / 100);
+        // Solo se permite porcentaje
+        if ($this->tipo_descuento !== 'porcentaje') {
+            return $precioOriginal;
         }
-        
-        // cantidad_fija
-        return max(0, $precioOriginal - $this->valor_descuento);
+
+        // Limitar al máximo permitido
+        $porcentaje = min($this->valor_descuento, self::DESCUENTO_MAXIMO);
+        return $precioOriginal - ($precioOriginal * $porcentaje / 100);
     }
 
     /**

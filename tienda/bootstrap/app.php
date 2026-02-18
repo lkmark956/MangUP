@@ -1,5 +1,9 @@
 <?php
 
+// Suprimir advertencias de deprecación de PDO::MYSQL_ATTR_SSL_CA en PHP 8.5+
+// Esto es necesario porque Laravel 11.x aún usa la constante antigua en vendor/
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

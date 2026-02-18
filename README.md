@@ -26,69 +26,147 @@ Ecommerce desarrollado con **Laravel 11** para la venta de manga, figuras colecc
 
 ---
 
-## Requisitos
+## 🚀 Guía de Instalación Completa
 
-- PHP >= 8.2
-- Composer
-- MySQL >= 8.0
-- Node.js >= 18
+Sigue estos pasos en orden para tener el proyecto funcionando sin errores.
 
-### Extensiones PHP
-`openssl`, `pdo_mysql`, `mbstring`, `curl`, `fileinfo`, `xml`, `ctype`, `json`
-
----
-
-## Instalación
-
+### Paso 1: Clonar el repositorio
 ```bash
-# Clonar y entrar al proyecto
 git clone https://github.com/lkmark956/MangUP.git
 cd MangUP/tienda
-
-# Instalar dependencias
-composer install
-npm install
-
-# Configurar entorno
-copy .env.example .env   # Windows
-cp .env.example .env     # Linux/Mac
-php artisan key:generate
-
-# Configurar base de datos en MySQL
-# CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# Editar .env con credenciales de MySQL y Stripe
-
-# Migrar y sembrar datos
-php artisan migrate --seed
-
-# Enlace de storage y compilar assets
-php artisan storage:link
-npm run build
-
-# Iniciar servidor
-php artisan serve
 ```
 
-Accede a: http://localhost:8000
+### Paso 2: Configurar PHP (IMPORTANTE)
 
----
+Antes de instalar dependencias, asegúrate de que PHP tiene las extensiones necesarias habilitadas.
 
-## Configuración de Stripe
-Copia las claves en `.env`:
+**2.1. Localiza tu `php.ini`:**
+```bash
+php --ini
+```
+Esto mostrará la ruta, por ejemplo: `C:\php\php.ini` o `/etc/php/8.x/cli/php.ini`
 
+**2.2. Edita el archivo `php.ini` y habilita estas extensiones:**
+
+Busca cada línea y quita el `;` del inicio:
+```ini
+extension=curl
+extension=zip
+extension=openssl
+extension=pdo_mysql
+extension=mbstring
+extension=fileinfo
+```
+
+**2.3. Guarda el archivo y verifica:**
+```bash
+# Windows PowerShell
+php -m | Select-String "curl|zip|openssl|pdo_mysql|mbstring|fileinfo"
+
+# Linux/Mac
+php -m | grep -E "curl|zip|openssl|pdo_mysql|mbstring|fileinfo"
+```
+Debes ver las 6 extensiones listadas.
+
+### Paso 3: Instalar dependencias
+```bash
+composer install
+npm install
+```
+
+### Paso 4: Configurar entorno
+```bash
+# Windows
+copy .env.example .env
+
+# Linux/Mac
+cp .env.example .env
+
+# Generar clave de aplicación
+php artisan key:generate
+```
+
+### Paso 5: Configurar base de datos
+
+**5.1. Crea la base de datos en MySQL:**
+```sql
+CREATE DATABASE mangup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+**5.2. Edita `.env` con tus credenciales:**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mangup_db
+DB_USERNAME=root
+DB_PASSWORD=tu_contraseña
+```
+
+### Paso 6: Configurar Stripe (pagos)
+
+Edita `.env` y añade las claves de Stripe (puedes usar estas de prueba):
 ```env
 STRIPE_KEY=pk_test_51SwlqZJGgdOsjWc0lbv1UUT42nj51OCoiV0dDqhbCOtiA7n0Q71gpe2mYd2O80q1VoZ8c88qmlt5s1AsPirUHNmi00y5KdFbLb
 STRIPE_SECRET=sk_test_51SwlqZJGgdOsjWc0fcWJ53BwHnFlYRO3oV1zyv4iS9X5cqCwYP0WGEbpK5saTweq9dgNAluXe2xAAtu8JScI2zA100htbR04LH
-STRIPE_WEBHOOK_SECRET=
 ```
 
-### Tarjeta de prueba
+### Paso 7: Ejecutar migraciones y sembrar datos
+```bash
+php artisan migrate --seed
+```
+
+### Paso 8: Preparar assets
+```bash
+php artisan storage:link
+npm run build
+```
+
+### Paso 9: Iniciar el servidor
+```bash
+php artisan serve
+```
+
+### ✅ ¡Listo!
+
+- **Tienda:** http://localhost:8000
+- **Panel Admin:** http://localhost:8000/admin
+  - Email: `admin@mangup.com`
+  - Password: `admin123`
+
+### Tarjeta de prueba para pagos
 | Campo | Valor |
 |-------|-------|
 | Número | 4242 4242 4242 4242 |
 | Fecha | Cualquier fecha futura |
 | CVV | Cualquier 3 dígitos |
+
+---
+
+## Requisitos del Sistema
+
+- PHP 8.2 - 8.5
+- Composer 2.x
+- MySQL >= 8.0
+- Node.js >= 18
+
+### Extensiones PHP Necesarias
+
+| Extensión | Uso |
+|-----------|-----|
+| `curl` | Comunicación con Stripe API |
+| `zip` | Instalación de dependencias |
+| `openssl` | Encriptación |
+| `pdo_mysql` | Conexión a MySQL |
+| `mbstring` | Manejo de strings UTF-8 |
+| `fileinfo` | Validación de archivos |
+
+### 8. Iniciar servidor
+```bash
+php artisan serve
+```
+
+Accede a: http://localhost:8000
 
 ---
 
@@ -421,43 +499,97 @@ flowchart TD
 
 ## Solución de Problemas
 
-### Error: "Failed to open stream" al crear sesión de pago con Stripe
+### Error: Extensiones PHP no habilitadas (curl, zip)
 
-**Error completo:**
+**Error:**
 ```
-include(C:\Users\...\tienda\vendor\composer/../stripe/stripe-php/lib/Checkout/Session.php): 
-Failed to open stream: No such file or directory
+stripe/stripe-php requires ext-curl * -> it is missing from your system
+The zip extension and unzip/7z commands are both missing
 ```
-
-**Causa:** La carpeta `vendor` está corrupta o los archivos de Stripe no se instalaron correctamente.
 
 **Solución:**
+1. Localiza tu archivo `php.ini`:
+   ```bash
+   php --ini
+   ```
+2. Abre el archivo y habilita las extensiones quitando el `;`:
+   ```ini
+   extension=curl
+   extension=zip
+   ```
+3. Guarda y verifica:
+   ```bash
+   php -m | Select-String "curl|zip"   # Windows PowerShell
+   php -m | grep -E "curl|zip"         # Linux/Mac
+   ```
 
+---
+
+### Error: "Call to undefined function curl_version()" al pagar
+
+**Error:**
+```
+Call to undefined function curl_version()
+Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+```
+
+**Causa:** Habilitaste la extensión `curl` pero el servidor PHP no se reinició.
+
+**Solución:**
+1. Detén el servidor (Ctrl+C en la terminal donde ejecutaste `php artisan serve`)
+2. Reinicia el servidor:
+   ```bash
+   php artisan serve
+   ```
+3. Si usas XAMPP/WAMP/Laragon, reinicia Apache desde el panel de control
+
+---
+
+### Error: PDO::MYSQL_ATTR_SSL_CA deprecado (PHP 8.5+)
+
+**Error:**
+```
+Deprecated: Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5
+```
+
+**Causa:** PHP 8.5 marca esta constante como deprecada. Laravel 11.x aún la utiliza.
+
+**Solución:** El proyecto ya incluye la supresión de esta advertencia en `bootstrap/app.php`. Si ves este error, actualiza el repositorio:
 ```bash
-# Navegar a la carpeta tienda
-cd tienda
+git pull origin main
+```
 
-# Eliminar carpeta vendor corrupta
-Remove-Item -Recurse -Force vendor
+---
 
-# Reinstalar todas las dependencias
+### Error: "Failed to open stream" al crear sesión de Stripe
+
+**Error:**
+```
+include(...stripe/stripe-php/lib/Checkout/Session.php): Failed to open stream
+```
+
+**Causa:** La carpeta `vendor` está corrupta.
+
+**Solución:**
+```bash
+# Eliminar vendor y reinstalar
+Remove-Item -Recurse -Force vendor   # Windows
+rm -rf vendor                        # Linux/Mac
+
 composer install
-
-# Regenerar autoloader
-composer dump-autoload
 ```
 
-**Verificación:**
+---
+
+### Error: "Could not open input file: artisan"
+
+**Causa:** No estás en la carpeta correcta.
+
+**Solución:**
 ```bash
-# Comprobar que Stripe está instalado correctamente
-composer show stripe/stripe-php
-
-# Verificar que existe el archivo Session.php
-Test-Path "vendor\stripe\stripe-php\lib\Checkout\Session.php"
-# Debe devolver: True
+cd tienda
+php artisan serve
 ```
-
-Después de esto, la pasarela de Stripe debería funcionar correctamente.
 
 ---
 

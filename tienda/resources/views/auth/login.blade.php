@@ -92,18 +92,6 @@
                         <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
                         </button>
-
-                        {{-- Divider --}}
-                        <div class="auth-divider">
-                            <span>o continúa con</span>
-                        </div>
-
-                        {{-- Social Buttons --}}
-                        <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-lg">
-                                <i class="bi bi-google me-2"></i>Google
-                            </button>
-                        </div>
                     </form>
 
                     {{-- Footer --}}
